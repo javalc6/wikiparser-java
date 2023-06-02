@@ -41,18 +41,18 @@ Wiki parser classes:
 - wiki.tools.WikiFormatter, html renderer for wikicode not related to templates and modules
 - wiki.tools.WikiPage, helper for template expansion
 - wiki.tools.WikiScanner, scanner for wiki text
-- wiki.parserfunctions.*, classes that implement wiki parser functions
+- wiki.parserfunctions.\*, classes that implement wiki parser functions
 - wiki.parserfunctions.ParserFunction, abstract class for parser functions
 - wiki.parserfunctions.ParserFunctions, dictionary of parser functions
 
 Support libraries:
-- info.bliki.extensions.scribunto.*, classes that implements the interface to luaj, based on https://github.com/axkr/info.bliki.wikipedia_parser 
-- info.bliki.wiki.template.dates.*, classes that emulate the strtotime() php function
-- bzip2.*, classes to unpack bzip2 files
+- info.bliki.extensions.scribunto.\*, classes that implements the interface to luaj, based on https://github.com/axkr/info.bliki.wikipedia_parser 
+- info.bliki.wiki.template.dates.\*, classes that emulate the strtotime() php function
+- bzip2.\*, classes to unpack bzip2 files
 
 - luaj, java interpreter of Lua language, used to process wiki modules, based on https://github.com/luaj/luaj
 
-- luabit\\*.lua, lualib\\*.lua and ustring\\*.lua: lua scripts, reference: https://github.com/wikimedia/mediawiki-extensions-Scribunto/tree/master/includes/Engines/LuaCommon/lualib
+- luabit\\\*.lua, lualib\\\*.lua and ustring\\\*.lua: lua scripts, reference: https://github.com/wikimedia/mediawiki-extensions-Scribunto/tree/master/includes/Engines/LuaCommon/lualib
 
 # Caveats
 This wiki parser is simplified and light, but has several limitations. It is designed only for english wiktionary.
