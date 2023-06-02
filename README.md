@@ -7,6 +7,8 @@ Main software is written in Java and uses LUA modules from Wikimedia.
 
 The library has been developed to parse and render English Wiktionary, starting from the dump enwiktionary-latest-pages-articles.xml.bz2 available in https://dumps.wikimedia.org/enwiktionary/latest/
 
+As an example of a wiktionary definition parsed by TemplateParser and rendered by WikiFormatter, please look at [time](wiki.html) definition.
+
 # WikiSplitter
 The WikiSplitter tool generates files wiki.dat, templates.dat and modules.dat from a wikimedia dump.
 ```
