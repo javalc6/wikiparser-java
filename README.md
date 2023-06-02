@@ -52,7 +52,7 @@ Support libraries:
 
 - luaj, java interpreter of Lua language, used to process wiki modules, based on https://github.com/luaj/luaj
 
-- luabit\*.lua, lualib\*.lua and ustring\*.lua: lua scripts, reference: https://github.com/wikimedia/mediawiki-extensions-Scribunto/tree/master/includes/Engines/LuaCommon/lualib
+- luabit\\*.lua, lualib\\*.lua and ustring\\*.lua: lua scripts, reference: https://github.com/wikimedia/mediawiki-extensions-Scribunto/tree/master/includes/Engines/LuaCommon/lualib
 
 # Caveats
 This wiki parser is simplified and light, but has several limitations. It is designed only for english wiktionary.
