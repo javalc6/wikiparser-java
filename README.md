@@ -77,7 +77,7 @@ Support libraries:
 - info.bliki.wiki.template.dates.\*, classes that emulate the strtotime() php function
 - bzip2.\*, classes to unpack bzip2 files
 
-- luaj, java interpreter of Lua language, used to process wiki modules, based on https://github.com/luaj/luaj
+- luaj, java interpreter of Lua language, used to process wiki modules, reference: https://github.com/luaj/luaj
 
 - luabit\\\*.lua, lualib\\\*.lua and ustring\\\*.lua: lua scripts, reference: https://github.com/wikimedia/mediawiki-extensions-Scribunto/tree/master/includes/Engines/LuaCommon/lualib
 
