@@ -107,3 +107,4 @@ The following 3pp are used by this software:
 - wikimedia lua scripts: https://github.com/wikimedia/mediawiki-extensions-Scribunto/tree/master/includes/Engines/LuaCommon
 - java scribunto engine: https://github.com/axkr/info.bliki.wikipedia_parser/tree/master/bliki-core/src/main/java/info/bliki/extensions/scribunto
 - java strtotime function: https://github.com/axkr/info.bliki.wikipedia_parser/tree/master/bliki-core/src/main/java/info/bliki/wiki/template/dates/
+- bzip2: https://commons.apache.org/proper/commons-compress
