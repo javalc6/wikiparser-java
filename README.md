@@ -5,7 +5,7 @@ The Java Wiktionary parser converts Wiktionary wikicode to HTML using ``Template
 ``WikiFormatter`` formats the expanded wikitext to HTML.
 Main software is written in Java and uses LUA modules from Wikimedia.
 
-The library has been developed to parse and render English Wiktionary, starting from the dump enwiktionary-latest-pages-articles.xml.bz2 available in https://dumps.wikimedia.org/enwiktionary/latest/
+The library has been developed to parse and render English Wiktionary, starting from the dump **enwiktionary-latest-pages-articles.xml.bz2** available in https://dumps.wikimedia.org/enwiktionary/latest/
 
 As an example of a wiktionary definition parsed by ``TemplateParser`` and rendered by ``WikiFormatter``, please look at [time](wiki.html) definition.
 
@@ -15,7 +15,7 @@ The ``WikiSplitter`` tool generates files wiki.dat, templates.dat and modules.da
 compile: javac -encoding UTF-8 wiki\WikiSplitter.java
 usage:  java wiki.WikiSplitter <filename>
 ```
-After the execution of ``WikiSplitter``, file wiki.dat will contain all the definitions in a plain text file, templates.dat will contain all templates in a plain text file and modules.dat will contain all modules in a plain text file. These files are needed for further processing.
+After the execution of ``WikiSplitter``, file **wiki.dat** will contain all the definitions in a plain text file, **templates.dat** will contain all templates in a plain text file and **modules.dat** will contain all modules in a plain text file. These files are needed for further processing.
 # Usage example
 
 Using the wiki parser is quite simple, once you have generated \*.dat files with ``WikiExtract``, your own code can parse wikitext, expand it and render to html in two steps:
@@ -42,7 +42,17 @@ usage:  java -cp .;lib\luaj-jse-3.0.2p.jar wiki.WikiFind <word>
 Class ``TestSuite`` performs automatic tests of the wiki parser.
 ```
 compile: javac -encoding UTF-8 -cp .;lib\luaj-jse-3.0.2p.jar wiki\TestSuite.java
-usage: java -cp .;lib\luaj-jse-3.0.2p.jar wiki.TestSuite [test number from 0 to 4]
+usage: java -cp .;lib\luaj-jse-3.0.2p.jar wiki.TestSuite [test number from 0 to 4] [template to test]
+
+meaning of test number:
+0: miscellaneous tests to check features
+1: debug test
+2: test template expansion, in this case specify also the template to test in the command line, note: requires files templates.dat and modules.dat
+3: smoke test, note: requires files wiki.dat, templates.dat and modules.dat
+4: parser robustness test
+
+template to test: this parameter is required only for test number 2
+
 ```
 # Classes
 Main classes:
