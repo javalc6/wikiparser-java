@@ -27,6 +27,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
+import info.bliki.extensions.scribunto.engine.lua.ScribuntoLuaEngine;
+
 import wiki.TemplateParser;
 
 import static wiki.tools.Utilities.flipTemplateName;
@@ -44,6 +46,8 @@ final public class WikiPage {
 	private final HashMap<String, String> name2content;//optional, may be null
 	private final boolean trace_calls;
 	private final boolean provide_fake_content;
+
+	private ScribuntoLuaEngine SLE = null;
 
 	public WikiPage(String name, Date rev, Locale locale, TemplateParser tp, 
 		HashMap<String, String> name2template, HashMap<String, String> name2module, 
@@ -114,5 +118,11 @@ final public class WikiPage {
 			return fullpagename;
 		return content;
 	}
+
+    public ScribuntoLuaEngine createScribuntoEngine() {
+		if (SLE == null)
+			SLE = new ScribuntoLuaEngine(this);
+        return SLE;
+    }
 
 }//end of class WikiPage

@@ -50,7 +50,7 @@ public final class Invoke extends ParserFunction {
         if (parameters.size() > 1) {
 			TemplateParser tp = wp.getTemplateParser();
 
-			ScribuntoLuaEngine sle = new ScribuntoLuaEngine(wp);
+			ScribuntoLuaEngine sle = wp.createScribuntoEngine();
 			boolean trace_calls = wp.getTrace_calls();
 			String module_name = tp.parseParameter( parameters.get(0), wp, parent);
 			String function_name = tp.parseParameter( parameters.get(1), wp, parent);
