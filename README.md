@@ -19,8 +19,9 @@ After the execution of ``WikiSplitter``, file **wiki.dat** will contain all the 
 # Usage example
 
 Using the wiki parser is quite simple, once you have generated \*.dat files with ``WikiExtract``, your own code can parse wikitext, expand it and render to html in two steps:
-* parse and expand wikitest with ``tp.parse()``
+* parse and expand wikitext with ``tp.parse()``
 * format expanded text to html with ``WikiFormatter.formatWikiText()``
+
 Before doing these steps, you shall instantiate the helper ``WikiPage`` to guide the parser in the wiki expansion with information like date, locale, templates, modules.
 
 Here is the typical code to perform wikitext parsing/expansion and rendering to html:
