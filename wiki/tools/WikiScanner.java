@@ -217,6 +217,12 @@ final public class WikiScanner {
 								i = end + 7;//go after tag "</code>"
 								continue;
 							}
+						} else if (str.startsWith("<math>", i)) {
+							int end = str.indexOf("</math>", i + 6);
+							if (end != -1) {
+								i = end + 7;//go after tag "</math>"
+								continue;
+							}
 						}
 						break;
 					case '|':
