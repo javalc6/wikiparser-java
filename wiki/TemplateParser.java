@@ -182,9 +182,10 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 			if (idx != -1) {//parameter present
 				sh.setPointer(pointer0);//retract scanner at start of identifier
 				sh.moveAfter(":");//move after : to get parameter
-				StringBuilder param = new StringBuilder();
-				template_body(sh, param, sh::getStringWithoutBracketsBar, wp, parent);
-				parameter = param.toString();
+
+				String param = sh.getStringParameter(null);
+				parameter = param == null ? "" : parseParameter(param, wp, parent);
+
 				while (sh.getCharInCharSet("|") != null) {//ignore any further parameter(s)
 					sh.getStringParameter(null);
 				}
@@ -203,10 +204,10 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 			if (idx != -1) {//first parameter present
 				sh.setPointer(pointer0);//retract scanner at start of identifier
 				sh.moveAfter(":");//move after : to get parameter
-				StringBuilder param = new StringBuilder();
-				template_body(sh, param, sh::getStringWithoutBracketsBar, wp, parent);
+
 				ArrayList<String> parameters = new ArrayList<>();
-				parameters.add(param.toString().trim());//first parameter
+				String param = sh.getStringParameter(null);
+				parameters.add(param == null ? "" : param.trim());
 
 				Character ch;
 				while ((ch = sh.getCharInCharSet("|")) != null) {//twin

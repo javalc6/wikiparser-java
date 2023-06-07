@@ -27,6 +27,7 @@ import java.util.ArrayList;
 
 import wiki.TemplateParser;
 import wiki.tools.WikiPage;
+import static wiki.tools.Utilities.findValidEqualSign;
 import info.bliki.extensions.scribunto.template.Frame;
 
 //reference: https://www.mediawiki.org/wiki/Special:MyLanguage/Help:Extension:ParserFunctions
@@ -44,7 +45,8 @@ public final class Switch extends ParserFunction {
 			boolean fallthrough = false;
 			for (int i = 1; i < parameters.size(); i++) {
 				String value =  parameters.get(i);
-				int idx = value.indexOf("="); 
+				int idx = findValidEqualSign(value);
+
 				String left = tp.parseParameter(idx != -1 ? value.substring(0, idx).trim() : value, wp, parent);
 				if (idx != -1) {
 					if ("#default".equals(left)) {

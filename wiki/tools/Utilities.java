@@ -49,16 +49,76 @@ final public class Utilities {
         }
     }
 
-	public static int findValidEqualSign(String parameter) {//find position of = sign outside html tag
-		if (parameter == null || parameter.isEmpty()) return -1;
-		int idx = parameter.indexOf("=");
-		if (idx == -1)
-			return idx;
-		int idx2 = parameter.indexOf("<");
-		if ((idx2 == -1) || (idx < idx2))
-			return idx;
+	public static int findValidEqualSign(String str) {//find valid position of = sign
+		if (str == null || str.isEmpty()) return -1;
+		int len = str.length();
+		int noc = 2; //number of open curls
+		int i = 0;
+		while (i < len) {
+			char ch = str.charAt(i);
+			switch (ch) {
+				case '{':
+					boolean found = false;
+					while (++i < len && ((ch = str.charAt(i)) == '{')) {
+						noc++; found = true;
+					}
+					if (found)
+						noc++;
+					continue;
+				case '}':
+					boolean found2 = false;
+					while (noc > 0 && (++i < len) && ((ch = str.charAt(i)) == '}')) {
+						noc--; found2 = true;
+					}
+					if (found2) {
+						if (noc > 0)
+							noc--;
+						if (noc == 0)
+							return -1;
+						continue;
+					}
+					if (noc > 0) continue;
+					break;
+				case '<':
+					if (str.startsWith("<nowiki>", i)) {
+						int end = str.indexOf("</nowiki>", i + 8);
+						if (end != -1) {
+							i = end + 9;//go after tag "</nowiki>"
+							continue;
+						}
+					} else if (str.startsWith("<code>", i)) {
+						int end = str.indexOf("</code>", i + 6);
+						if (end != -1) {
+							i = end + 7;//go after tag "</code>"
+							continue;
+						}
+					} else if (str.startsWith("<math>", i)) {
+						int end = str.indexOf("</math>", i + 6);
+						if (end != -1) {
+							i = end + 7;//go after tag "</math>"
+							continue;
+						}
+					}
+					int end = str.indexOf(">", i);
+					if (end != -1) {
+						i = end + 1;// go after ">"		
+						continue;
+					}
+					break;
+				case '|':
+					if (noc < 3)
+						return -1;
+					break;
+				case '=':
+					if (noc < 3)
+						return i;
+					break;
+			}
+			i++;
+		}
 		return -1;
 	}
+
 
     public static boolean checkInteger(String str) {//check that string str is an unsigned integer number
         for (char c : str.trim().toCharArray()) {
