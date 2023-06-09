@@ -47,13 +47,16 @@ final public class WikiScanner {
 		return null;
 	}
 
-	public boolean getSequence(String sequence) {//returns true only if sequence is found at current position; in this case pointer is moved forward
-		if (pointer + sequence.length() > str.length())
+	public boolean getChar(char ch) {//returns true only if sequence is found at current position; in this case pointer is moved forward
+		if (pointer >= str.length() || str.charAt(pointer) != ch)
 			return false;
-		for (int i = 0; i < sequence.length(); i++) {
-			if (str.charAt(pointer + i) != sequence.charAt(i))
-				return false;
-		}
+		pointer++;
+		return true;
+	}
+
+	public boolean getSequence(String sequence) {//returns true only if sequence is found at current position; in this case pointer is moved forward
+		if (pointer + sequence.length() > str.length() || !str.startsWith(sequence, pointer))
+			return false;
 		pointer += sequence.length();
 		return true;
 	}
@@ -82,55 +85,6 @@ final public class WikiScanner {
 			int idx = findTarget("{{", pointer);
 			if (idx == -1)
 				idx = str.length();
-			if (idx > pointer) {
-				String ret = str.substring(pointer, idx);
-				pointer = idx;
-				return ret;
-			}
-		}
-		return null;			
-	}
-
-	public String getStringWithoutBrackets() {//returns substring before either {{ or }}
-		if (pointer < str.length()) {
-			int idx1 = findTarget("{{", pointer);
-			if (idx1 == -1)
-				idx1 = str.length();
-			int idx2 = findTarget("}}", pointer);
-			if (idx2 == -1)
-				idx2 = str.length();
-			int idx = Math.min(idx1, idx2);
-			if (idx > pointer) {
-				String ret = str.substring(pointer, idx);
-				pointer = idx;
-				return ret;
-			}
-		}
-		return null;			
-	}
-
-	public String getStringWithoutBracketsBar() {//returns substring without {{ and }} and |
-		if (pointer < str.length()) {
-			int idx1 = findTarget("{{", pointer);
-			int idx2 = findTarget("}}", pointer);
-			int idx_bar = findTarget("|", pointer);
-			int ii = pointer, idx_sq;
-			while ((idx_bar != -1) && ((idx_sq = findTarget("[[", ii)) != -1) && (idx_sq < idx_bar)) {//skip any bar | inside [[....]]
-				int idx_close = findMatchDoubleBrace(str, idx_sq, '[', ']');
-				if (idx_close != -1) {
-					if (idx_bar < idx_close)
-						idx_bar = findTarget("|", idx_close);
-					ii = idx_close;
-				} else break;
-			}
-
-			if (idx1 == -1)
-				idx1 = str.length();
-			if (idx2 == -1)
-				idx2 = str.length();
-			if (idx_bar == -1)
-				idx_bar = str.length();
-			int idx = Math.min(Math.min(idx1, idx2), idx_bar);
 			if (idx > pointer) {
 				String ret = str.substring(pointer, idx);
 				pointer = idx;
@@ -266,21 +220,6 @@ final public class WikiScanner {
 	public void replaceNested(int start, int end, String rep) {//17-05-2023: handling of nested invocations
 //		System.out.println("replaceNested");
 		str = str.substring(0, start) + rep + str.substring(end);
-	}
-
-	private static int findMatchDoubleBrace(String str, int start, char open, char close) {//start on first {{ if open = {
-		int lvl = 0;
-		int end = str.length();
-		for (int i = start; i < end - 1; i++) {
-			if (str.charAt(i) == open && str.charAt(i + 1) == open) {//{{ if open = {
-				lvl++; i++;
-			} else if (str.charAt(i) == close && str.charAt(i + 1) == close) {//}} if close = }
-				lvl--; i++;
-				if (lvl == 0)
-					return i - 1;//match found, return position at end brace
-			}
-		}
-		return -1;//no match found
 	}
 
 	public String getIdentifier() {//returns identifier, if present at current position

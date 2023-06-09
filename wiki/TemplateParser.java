@@ -24,7 +24,6 @@ DO NOT USE THIS SOFTWARE IF YOU DON'T AGREE WITH STATED CONDITIONS.
 package wiki;
 
 import java.util.ArrayList;
-import java.util.function.Supplier;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -50,7 +49,7 @@ final public class TemplateParser {
 	public String parse(String string, WikiPage wp) {//external
 		StringBuilder sb = new StringBuilder();
 		WikiScanner sh = new WikiScanner(delete_comments(string));
-		template_body(sh, sb, sh::getStringWithoutOpening, wp, null);
+		template_body(sh, sb, wp, null);
         deleteAll(sb, "<nowiki>");
         deleteAll(sb, "</nowiki>");
 		return sb.toString();
@@ -59,24 +58,22 @@ final public class TemplateParser {
 	public String parseParameter(String string, WikiPage wp, Frame parent) {//internal usage (used only by parserfunctions)
 		StringBuilder sb = new StringBuilder();
 		WikiScanner sh = new WikiScanner(string);
-		template_body(sh, sb, sh::getStringWithoutOpening, wp, parent);
+		template_body(sh, sb, wp, parent);
 		return sb.toString().trim();
 	}
 
 //template_body ::= [simple_text] { (parameter_holder | invocation ) [simple_text] }* [any text]
-	private void template_body(WikiScanner sh, StringBuilder sb, Supplier<String> supplier, WikiPage wp, Frame parent) {
-		String pre = supplier.get();
+	private void template_body(WikiScanner sh, StringBuilder sb, WikiPage wp, Frame parent) {
+		String pre = sh.getStringWithoutOpening();
 		if (pre != null)
 			sb.append(pre);
 		while (sh.getSequence("{{")) {
 			int pointer = sh.getPointer(); //save pointer to be ready to retract in case of missing }}
 
-			Character ch;
-			if ((ch = sh.getCharInCharSet("{")) != null) {
+			if (sh.getChar('{')) {
 //parameter_holder ::= "{{{" (parameter_name) [ "|" [default value] ] "}}}" -- default value
-				boolean ph = parameter_holder(sh, sb, wp, parent);
-				if (ph) {
-					String str = supplier.get();//twin
+				if (parameter_holder(sh, sb, wp, parent)) {
+					String str = sh.getStringWithoutOpening();//twin
 					if (str != null)
 						sb.append(str);
 					continue;
@@ -93,12 +90,11 @@ final public class TemplateParser {
 				sh.setPointer(p2 + 2);
 
 				String rep = null;
-				if ((ch = sh.getCharInCharSet("{")) != null) {
+				if (sh.getChar('{')) {
 //parameter_holder ::= "{{{" (parameter_name) [ "|" [default value] ] "}}}" -- default value
 					StringBuilder sb2 = new StringBuilder();
-					boolean ph = parameter_holder(sh, sb2, wp, parent);
-					if (ph) {
-						String str = supplier.get();//twin
+					if (parameter_holder(sh, sb2, wp, parent)) {
+						String str = sh.getStringWithoutOpening();//twin
 						if (str != null)
 							sb2.append(str);
 						rep = sb2.toString();
@@ -123,7 +119,7 @@ final public class TemplateParser {
 				sh.setPointer(pointer);//retract scanner
 				sb.append("{{");//push back unbalanced "{{"
 			}
-			String str = supplier.get();//twin
+			String str = sh.getStringWithoutOpening();//twin
 			if (str != null)
 				sb.append(str);
 		}
@@ -139,7 +135,7 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 		String param_name = sh.getIdentifierOrNumber();
 		if (param_name != null) {
 			String result = parent == null ? null : parent.getTemplateParameter(param_name);
-			String def_value = (sh.getCharInCharSet("|")) != null ? sh.getStringParameter(null) : null;
+			String def_value = sh.getChar('|') ? sh.getStringParameter(null) : null;
 			if (sh.getSequence("}}}")) {
 				if (result == null)
 					result = def_value == null ? "{{{" + param_name + "}}}" : parseParameter(def_value, wp, parent);//use literal or default value
@@ -186,7 +182,7 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 				String param = sh.getStringParameter(null);
 				parameter = param == null ? "" : parseParameter(param, wp, parent);
 
-				while (sh.getCharInCharSet("|") != null) {//ignore any further parameter(s)
+				while (sh.getChar('|')) {//ignore any further parameter(s)
 					sh.getStringParameter(null);
 				}
 			}
@@ -209,8 +205,7 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 				String param = sh.getStringParameter(null);
 				parameters.add(param == null ? "" : param.trim());
 
-				Character ch;
-				while ((ch = sh.getCharInCharSet("|")) != null) {//twin
+				while (sh.getChar('|')) {//twin
 					String paramx = sh.getStringParameter(null);
 					parameters.add(paramx == null ? "" : paramx.trim());
 				}
@@ -226,9 +221,9 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 			if (identifier.toLowerCase().startsWith(lc_template_label)) {//TODO: handle also alias and language localizations
 				identifier = identifier.substring(template_label.length());//remove template namespace
 			}
-			Character ch; int pos = 1;
+			int pos = 1;
 			Map<String, String> parameterMap = new LinkedHashMap<>();
-			while ((ch = sh.getCharInCharSet("|")) != null) {//twin
+			while (sh.getChar('|')) {//twin
 				String param_name = "";
 				int[] equalPos = {-1};
 				String paramx = sh.getStringParameter(equalPos);
@@ -278,7 +273,7 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 					Frame frame = new Frame(template_label + identifier, parameterMap, parent, true);//frame of this template
 					StringBuilder sb = new StringBuilder();
 					WikiScanner sh = new WikiScanner(delete_comments(template_text));
-					template_body(sh, sb, sh::getStringWithoutOpening, wp, frame);
+					template_body(sh, sb, wp, frame);
 					parsed_template = sb.toString();
 				}
 			}
