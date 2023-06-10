@@ -131,10 +131,10 @@ public final class StringToTime extends Date {
 
 
             // e.g., October 26 and Oct 26
-            new PatternAndFormat(Pattern.compile("([a-z]+) +\\d{1,2}", Pattern.CASE_INSENSITIVE), new Format(FormatType.MONTH_AND_DATE)),
+            new PatternAndFormat(Pattern.compile("([a-z]+) +(\\d{1,2})", Pattern.CASE_INSENSITIVE), new Format(FormatType.MONTH_AND_DATE)),
 
-            // e.g., 26 October 1981, or 26 Oct 1981, or 26 Oct 81, or 26. Oct 81
-            new PatternAndFormat(Pattern.compile("(\\d{1,2})(?:\\.?)( +[a-z]+ +)(\\d{2}|\\d{4})", Pattern.CASE_INSENSITIVE), new Format("d MMM y")),
+            // e.g., 26 October 1981, or 26 Oct 1981, or 26 Oct 81
+            new PatternAndFormat(Pattern.compile("\\d{1,2} +[a-z]+ +(\\d{2}|\\d{4})", Pattern.CASE_INSENSITIVE), new Format("d MMM y")),
 
             // e.g., October 1981
             new PatternAndFormat(Pattern.compile("[a-z]+ +\\d{4}", Pattern.CASE_INSENSITIVE), new Format("MMM yyyy")),
@@ -150,15 +150,15 @@ public final class StringToTime extends Date {
             new PatternAndFormat(Pattern.compile(timeExpr, Pattern.CASE_INSENSITIVE), new Format(FormatType.TIME)),
 
             // e.g., 1997, March 14
-            new PatternAndFormat(Pattern.compile("(\\d{2}|\\d{4})( *, *[a-z]+ +\\d{1,2})", Pattern.CASE_INSENSITIVE),
+            new PatternAndFormat(Pattern.compile("(\\d{2}|\\d{4}) *, *[a-z]+ +\\d{1,2}", Pattern.CASE_INSENSITIVE),
                     new Format("y, MMM d")),
 
-			// e.g., October 26, 1981 or Oct 26, 1981, or Oct. 26, 1981
-            new PatternAndFormat(Pattern.compile("([a-z]+)(?:\\.?)( +\\d{1,2} *, *)(\\d{2}|\\d{4})", Pattern.CASE_INSENSITIVE),
+            // e.g., October 26, 1981 or Oct 26, 1981
+            new PatternAndFormat(Pattern.compile("[a-z]+ +\\d{1,2} *, *(\\d{2}|\\d{4})", Pattern.CASE_INSENSITIVE),
                     new Format("MMM d, y")),
 
-            // e.g., October 26 1981 or Oct 26 1981, or Oct 26th 1981
-            new PatternAndFormat(Pattern.compile("([a-z]+ +\\d{1,2})(?:st|nd|rd|th)?( +)(\\d{2}|\\d{4})", Pattern.CASE_INSENSITIVE),
+            // e.g., October 26 1981 or Oct 26 1981
+            new PatternAndFormat(Pattern.compile("[a-z]+ +\\d{1,2} +(\\d{2}|\\d{4})", Pattern.CASE_INSENSITIVE),
                     new Format("MMM d y")),
 
             // e.g., 10/26/1981 or 10/26/81
@@ -181,9 +181,6 @@ public final class StringToTime extends Date {
 
             // e.g., 1981-10
             new PatternAndFormat(Pattern.compile("\\d{4}-\\d{2}"), new Format("yyyy-MM")),
-
-            // e.g., 26.10.1981
-            new PatternAndFormat(Pattern.compile("\\d{1,2}\\.\\d{1,2}\\.\\d{4}"), new Format("d.M.y")),
 
             // e.g., October or Oct
             new PatternAndFormat(
@@ -308,8 +305,6 @@ public final class StringToTime extends Date {
         try {
             if (dateTimeString != null) {
                 String trimmed = String.valueOf(dateTimeString).trim();
-				if (trimmed.endsWith(",") || trimmed.endsWith("."))
-					trimmed = trimmed.substring(0, trimmed.length() - 1);//drop last char
                 for (PatternAndFormat paf : known) {
                     Matcher m = paf.matches(trimmed);
                     if (m.matches()) {
@@ -441,16 +436,9 @@ public final class StringToTime extends Date {
         }
 
         Date parse(String dateTimeString, Date now, Matcher m) throws ParseException {
-            if (sdf != null) {
-				if (m.groupCount() > 1) {
-					StringBuilder sb = new StringBuilder(dateTimeString.length());
-					for (int i = 1; i <= m.groupCount(); i++) {
-						sb.append(m.group(i));
-					}
-					dateTimeString = sb.toString();
-				}
+            if (sdf != null)
                 return new SimpleDateFormat(sdf, DEFAULT_LOCALE).parse(dateTimeString);
-            } else {
+            else {
                 dateTimeString = removeExtraSpaces.matcher(dateTimeString).replaceAll(" ").toLowerCase();
 
                 try {
