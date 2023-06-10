@@ -91,7 +91,6 @@ The parser is not optimized for speed.
 The following future improvements will enhance the parser:
 - implement getEntityTable() in MwText.java to avoid hack in mw.text.lua (function mwtext.decode)
 - language localization
-- use also aliases defined in NameSpaces, to identify templates and modules
 - interwiki links
 - implement stubs with real code
 - parser functions localurle and fullurle have been implemented as localurl and fullurl, instead they should use htmlspecialchars before returning the result
