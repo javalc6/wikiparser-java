@@ -103,7 +103,7 @@ final public class TemplateParser {
 					rep = invocation_body(sh, wp, parent);
 				}
 				if (rep == null) {
-					sh.dumpString("Ops, something wrong!");
+					sh.dumpString("Unexpected error, probably caused by unbalanced curly brackets");
 					sh.setPointer(p2);
 				} else {
 					int end = sh.getPointer();
@@ -136,6 +136,9 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 		if (param_name != null) {
 			String result = parent == null ? null : parent.getTemplateParameter(param_name);
 			String def_value = sh.getChar('|') ? sh.getStringParameter(null) : null;
+			while (sh.getChar('|')) {//ignore any further parameter(s)
+				sh.getStringParameter(null);
+			}
 			if (sh.getSequence("}}}")) {
 				if (result == null)
 					result = def_value == null ? "{{{" + param_name + "}}}" : parseParameter(def_value, wp, parent);//use literal or default value

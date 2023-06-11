@@ -156,7 +156,12 @@ final public class TestSuite {
 		testEvaluate(tp, "{{#ifeq: 1233.00 | 1233 |equal | not}}", wp, "equal");
 //		testEvaluate(tp, "{{#time: Y-m-d }}", wp, "2024-01-01");
 		testEvaluate(tp, "{{#time:d F Y|1988-02-28|nl}}", wp, "28 februari 1988");
-		testEvaluate(tp, "{{#time: r|2000 December 20}}", wp, "<span class=\"error\">textbook:2000 December 20</span>");
+		testEvaluate(tp, "{{#time: r|26. Oct 81}}", wp, "Mon, 26 Oct 1981 00:00:00 +0000");
+		testEvaluate(tp, "{{#time: r|26 Oct 1981, 12:49:16}}", wp, "Mon, 26 Oct 1981 12:49:16 +0000");
+		testEvaluate(tp, "{{#time: r|Oct 26th 1981}}", wp, "Mon, 26 Oct 1981 00:00:00 +0000");
+		testEvaluate(tp, "{{#time: r|October 26 1981}}", wp, "Mon, 26 Oct 1981 00:00:00 +0000");
+		testEvaluate(tp, "{{#time: r|26.10.1981}}", wp, "Mon, 26 Oct 1981 00:00:00 +0000");
+		testEvaluate(tp, "{{#time: r|2000 December 20}}", wp, "<strong class=\"error\">textbook:2000 December 20</strong>");
 		testEvaluate(tp, "{{#iferror: {{#time: Y-m-d }} | error | correct }}", wp, "correct");
 		testEvaluate(tp, "{{#iferror: {{#time: r|2000 December 20}} | error | correct }}", wp, "error");
 		testEvaluate(tp, "{{#titleparts: Talk:Foo/bar/baz/quok | 2 | 2 }}", wp, "bar/baz");

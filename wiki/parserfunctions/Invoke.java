@@ -54,8 +54,6 @@ public final class Invoke extends ParserFunction {
 			boolean trace_calls = wp.getTrace_calls();
 			String module_name = tp.parseParameter( parameters.get(0), wp, parent);
 			String function_name = tp.parseParameter( parameters.get(1), wp, parent);
-			if (trace_calls)
-				System.out.print("MODULE:" + module_name + "." + function_name + "(");
 			Map<String, String> parameterMap = new LinkedHashMap<>();//skip first two parameter (module and function names)
 			int pos = 1;
 			for (int i = 2; i < parameters.size(); i++) {
@@ -68,13 +66,13 @@ public final class Invoke extends ParserFunction {
 					parameterMap.put(Integer.toString(pos++), param);//unnamed parameter
 				}
 			}
-			if (trace_calls) {
-				System.out.println(parameterMap);
-				System.out.println(")");
-			}
+			if (trace_calls)
+				System.out.println("MODULE:" + module_name + "." + function_name + "(" + parameterMap + ")");
 			try {
 				return sle.invoke(module_name, function_name, parent, parameterMap, trace_calls);
 			} catch (LuaError | ScribuntoException ex) {
+				if (!trace_calls)
+					System.out.println("MODULE:" + module_name + "." + function_name + "(" + parameterMap + ")");
 				ex.printStackTrace();//debugging
 				return format_error("Module error: " + ex.getMessage());
 			}

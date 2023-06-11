@@ -148,7 +148,7 @@ public final class Time extends ParserFunction {
 				try {
 					date = new StringToTime(dateTimeParameter);
 				} catch (StringToTimeException e) {
-					return "<span class=\"error\">"+wp.getPagename()+":"+dateTimeParameter+"</span>";
+					return format_error(wp.getPagename()+":"+dateTimeParameter);
 				}
 			} else {
 				date =  new Date(System.currentTimeMillis());
