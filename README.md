@@ -93,7 +93,6 @@ The following future improvements will enhance the parser:
 - language localization
 - interwiki links
 - implement stubs with real code
-- parser functions localurle and fullurle have been implemented as localurl and fullurl, instead they should use htmlspecialchars before returning the result
 - define missing namespaces in class NameSpaces
 - implement remaining magic words, e.g. pagesincat, pagesincategory, pagesinnamespace,....
 - improve quality of html renderer
