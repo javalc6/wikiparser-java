@@ -18,7 +18,7 @@ usage:  java wiki.WikiSplitter <filename>
 After the execution of ``WikiSplitter``, file **wiki.dat** will contain all the definitions in a plain text file, **templates.dat** will contain all templates in a plain text file and **modules.dat** will contain all modules in a plain text file. These files are needed for further processing.
 # Usage example
 
-Using the wiki parser is quite simple, once you have generated \*.dat files with ``WikiExtract``, your own code can parse wikitext, expand it and render to html in two steps:
+Using the wiki parser is quite simple, once you have generated \*.dat files with ``WikiSplitter``, your own code can parse wikitext, expand it and render to html in two steps:
 * parse and expand wikitext with ``tp.parse()``
 * format expanded text to html with ``WikiFormatter.formatWikiText()``
 
