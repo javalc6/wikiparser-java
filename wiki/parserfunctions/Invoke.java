@@ -61,7 +61,7 @@ public final class Invoke extends ParserFunction {
 				int idx = findValidEqualSign(param);
 //System.out.println("i=" + i + ", parameter splitting: " + param + ", idx= " + idx);
 				if (idx != -1) {
-					parameterMap.put(param.substring(0, idx).trim(), param.substring(idx + 1));
+					parameterMap.put(param.substring(0, idx).trim(), param.substring(idx + 1).trim());
 				} else {
 					parameterMap.put(Integer.toString(pos++), param);//unnamed parameter
 				}

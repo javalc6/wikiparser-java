@@ -28,7 +28,7 @@ import java.lang.RuntimeException;
   This class is an helper for parsing wiki text
 */
 final public class WikiScanner {
-	protected String str;
+	protected final String str;//immutable
 	protected int pointer;
 
 	public WikiScanner(String str) {
@@ -200,45 +200,6 @@ final public class WikiScanner {
 		return null;			
 	}
 
-	public int findNested(int start) {//17-05-2023: handling of nested invocations
-//		System.out.println("findNested-->"+start);
-		int end = str.length();
-		int p2 = findTarget("{{", start);
-		if (p2 != -1) {
-//			if (str.charAt(p2 + 2) == '{')//serve ad skippare eventuali parametri {{{param}}}
-//				return -1;
-			int close = findTarget("}}", start);
-			if ((close == -1) || (close < p2))
-				return -1;
-			int bar = findTarget("|", start);
-			if ((bar == -1) || (bar > p2))
-				return p2;
-		}
-		return -1;
-	}
-
-	public void replaceNested(int start, int end, String rep) {//17-05-2023: handling of nested invocations
-//		System.out.println("replaceNested");
-		str = str.substring(0, start) + rep + str.substring(end);
-	}
-
-	public String getIdentifier() {//returns identifier, if present at current position
-		Character ch = null;
-		while ((pointer < str.length()) && isWikiSpace(ch = str.charAt(pointer++)))
-			;
-		if (ch != null) {
-			if (Character.isLetter(ch))	{
-				StringBuilder sb = new StringBuilder().append(ch);
-				while ((pointer < str.length()) && (Character.isLetter(ch = str.charAt(pointer)))) {
-					sb.append(ch); pointer++;
-				}
-				return sb.toString().trim();
-			}
-			pointer--;//retract pointer if ch is not a letter
-		}
-		return null;
-	}
-
 	public String getIdentifierOrNumber() {//returns identifier or number, if present at current position
 		Character ch = null;
 		while ((pointer < str.length()) && isWikiSpace(ch = str.charAt(pointer++)))
@@ -250,24 +211,6 @@ final public class WikiScanner {
 			}
 			if (sb.length() > 0)
 				return sb.toString();
-		}
-		return null;
-	}
-
-	public String getTemplateIdentifier() {//returns template identifier, if present at current position
-		Character ch = null;
-		while ((pointer < str.length()) && isWikiSpace(ch = str.charAt(pointer++)))
-			;
-		if (ch != null) {
-			String restricted_charset = "<>[]|{}";//note: # is allowed, because this method is used also for parser functions
-			if (restricted_charset.indexOf(ch) == -1)	{
-				StringBuilder sb = new StringBuilder().append(ch);
-				while ((pointer < str.length()) && (restricted_charset.indexOf(ch = str.charAt(pointer)) == -1)) {
-					sb.append(ch); pointer++;
-				}
-				return sb.toString().trim();
-			}
-			pointer--;//retract pointer if ch is not a letter
 		}
 		return null;
 	}

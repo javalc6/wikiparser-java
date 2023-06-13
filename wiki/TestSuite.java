@@ -187,7 +187,7 @@ final public class TestSuite {
 		testEvaluate(tp, "{{echo|a<nowiki>=</nowiki>b}}", wp, "a=b");
 		testEvaluate(tp, "{{echo|a<!--=-->b}}", wp, "ab");
 		testEvaluate(tp, "{{echo|[[ab|cd]]}}", wp, "[[ab|cd]]");
-		testEvaluate(tp, "a{{ compose3 | alfa | beta | gamma }}b", wp, "aalfabetagammab");
+		testEvaluate(tp, "a{{ compose3 | alfa | beta | gamma }}b", wp, "a alfa  beta  gamma b");
 		testEvaluate(tp, "{{subst:temPLAte:echo|alfa}}", wp, "alfa");
 		testEvaluate(tp, "{{nested|r={{echo|c}}|q={{echo|b}}|p={{subst:temPLAte:echo|a}}}}", wp, "abc");
 		testEvaluate(tp, "{{checkparam}}", wp, "No text in param");

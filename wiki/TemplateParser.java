@@ -40,7 +40,6 @@ import info.bliki.extensions.scribunto.template.Frame;
 The class TemplateParser implements light wiki template parser.
 */
 final public class TemplateParser {
-	final static boolean failsafe_parser = true;//must be true in production! false is for debug/test purposes only
 
 	private final static String template_label = "Template:";
 	private final static String lc_template_label = template_label.toLowerCase();
@@ -55,11 +54,13 @@ final public class TemplateParser {
 		return sb.toString();
 	}
 	
-	public String parseParameter(String string, WikiPage wp, Frame parent) {//internal usage (used only by parserfunctions)
-		StringBuilder sb = new StringBuilder();
-		WikiScanner sh = new WikiScanner(string);
-		template_body(sh, sb, wp, parent);
-		return sb.toString().trim();
+	public String parseParameter(String string, WikiPage wp, Frame parent) {//internal usage (used by parserfunctions)
+		if (string.contains("{{")) {
+			StringBuilder sb = new StringBuilder();
+			WikiScanner sh = new WikiScanner(string);
+			template_body(sh, sb, wp, parent);
+			return sb.toString();
+		} else return string;
 	}
 
 //template_body ::= [simple_text] { (parameter_holder | invocation ) [simple_text] }* [any text]
@@ -71,7 +72,6 @@ final public class TemplateParser {
 			int pointer = sh.getPointer(); //save pointer to be ready to retract in case of missing }}
 
 			if (sh.getChar('{')) {
-//parameter_holder ::= "{{{" (parameter_name) [ "|" [default value] ] "}}}" -- default value
 				if (parameter_holder(sh, sb, wp, parent)) {
 					String str = sh.getStringWithoutOpening();//twin
 					if (str != null)
@@ -83,35 +83,6 @@ final public class TemplateParser {
 				sb.append("{");//save orphan { as literal
 				continue;
 			}
-
-			int p1 = sh.getPointer();
-			int p2 = sh.findNested(p1);//handling of nested template calls like {{la{{#if:1|be|re}}l|en|activity}}
-			if (p2 != -1) {
-				sh.setPointer(p2 + 2);
-
-				String rep = null;
-				if (sh.getChar('{')) {
-//parameter_holder ::= "{{{" (parameter_name) [ "|" [default value] ] "}}}" -- default value
-					StringBuilder sb2 = new StringBuilder();
-					if (parameter_holder(sh, sb2, wp, parent)) {
-						String str = sh.getStringWithoutOpening();//twin
-						if (str != null)
-							sb2.append(str);
-						rep = sb2.toString();
-					}// else rep = null;
-				} else {
-					rep = invocation_body(sh, wp, parent);
-				}
-				if (rep == null) {
-					sh.dumpString("Unexpected error, probably caused by unbalanced curly brackets");
-					sh.setPointer(p2);
-				} else {
-					int end = sh.getPointer();
-					sh.replaceNested(p2, end, rep);
-					sh.setPointer(p1);
-				}
-			}
-
 			String p = invocation_body(sh, wp, parent);
 			if (p != null) {
 				sb.append(p);
@@ -154,12 +125,12 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 //magic_word_call ::= magic_word [ ":" magic_parameter]
 //parser_function_call ::= parser_function_name ":" parser_function_parameter { "|" [parser_function_parameter] }*
 //template_call ::= template_identifier { "|" [template_parameter] }*
-		StringBuilder sb = new StringBuilder();
 		int pointer0 = sh.getPointer(); //save pointer to be ready to retract
 
-		String identifier = sh.getTemplateIdentifier();
+		String identifier = sh.getStringParameter(null);
 		if (identifier == null)
 			return null;
+		identifier = identifier.trim();
 		if (identifier.startsWith(":")) {//ignore transclusion of ordinary wiki page
 			return null;
 		}
@@ -171,6 +142,7 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 			identifier = identifier.substring("safesubst:".length());
 			pointer0 += "safesubst:".length();
 		}
+		identifier = parseParameter(identifier, wp, parent);
 		int pointer = sh.getPointer(); //save pointer to be ready to retract in case of invalid magic word or parser function
 //check & process magic word
 		int idx = identifier.indexOf(":");
@@ -183,7 +155,7 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 				sh.moveAfter(":");//move after : to get parameter
 
 				String param = sh.getStringParameter(null);
-				parameter = param == null ? "" : parseParameter(param, wp, parent);
+				parameter = param == null ? "" : parseParameter(param, wp, parent).trim();
 
 				while (sh.getChar('|')) {//ignore any further parameter(s)
 					sh.getStringParameter(null);
@@ -191,10 +163,9 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 			}
 			if (sh.getSequence("}}")) {
 				String result = MagicWords.evaluate(mw, parameter, wp.getPagename(), wp.getRevision());
-				if (result != null) {
-					sb.append(result);
-					return sb.toString();
-				} else sh.setPointer(pointer);//retract scanner
+				if (result != null)
+					return result;
+				sh.setPointer(pointer);//retract scanner
 			} else return null;
 		}
 //check & process parser function call
@@ -232,10 +203,10 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 				String paramx = sh.getStringParameter(equalPos);
 				String value = "";
 				if (paramx != null) {
-					idx = equalPos[0];//findValidEqualSign(paramx);
+					idx = equalPos[0];
 //		System.out.println("parameter splitting: " + paramx + ", idx= " + idx);
 					if (idx != -1 && !(param_name = paramx.substring(0, idx).trim()).isEmpty()) {//named parameter
-						value = paramx.substring(idx + 1);//skip "="
+						value = paramx.substring(idx + 1).trim();//skip "="
 					} else {//unnamed parameter
 						value = paramx;
 					}
@@ -248,9 +219,11 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 			if (sh.getSequence("}}")) {
 				return getParsedTemplate(identifier.replace('_', ' '), wp, parameterMap, parent);
 			} else return null;
-		} else if (failsafe_parser)
+		} else {//unexpected identifier
+			if (wp.getTrace_calls())
+				System.out.println("unexpected identifier:" + identifier);
 			return null;
-		else throw new RuntimeException("unexpected identifier: " + identifier);
+		}
 	}
 
 	public String getParsedTemplate(String identifier, WikiPage wp, Map<String, String> parameterMap, Frame parent) {
