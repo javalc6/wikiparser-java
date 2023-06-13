@@ -201,17 +201,15 @@ final public class WikiScanner {
 	}
 
 	public String getIdentifierOrNumber() {//returns identifier or number, if present at current position
-		Character ch = null;
-		while ((pointer < str.length()) && isWikiSpace(ch = str.charAt(pointer++)))
-			;
-		if (ch != null) {
-			StringBuilder sb = new StringBuilder().append(ch);
-			while ((pointer < str.length()) && (Character.isLetter(ch = str.charAt(pointer)) || Character.isDigit(ch)) || ("/-_ ".indexOf(ch) != -1)) {
-				sb.append(ch); pointer++;
-			}
-			if (sb.length() > 0)
-				return sb.toString();
+		while ((pointer < str.length()) && isWikiSpace(str.charAt(pointer)))
+			pointer++;
+		StringBuilder sb = new StringBuilder();
+		char ch;
+		while ((pointer < str.length()) && (Character.isLetter(ch = str.charAt(pointer)) || Character.isDigit(ch) || ("/-_ ".indexOf(ch) != -1))) {
+			sb.append(ch); pointer++;
 		}
+		if (sb.length() > 0)
+			return sb.toString();
 		return null;
 	}
 

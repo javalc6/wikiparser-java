@@ -103,20 +103,24 @@ Important: if param_name is not defined, then
 {{{param_name|}}} --> (empty string)
 reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 */
-		String param_name = sh.getIdentifierOrNumber();
+		String param_name = sh.getStringParameter(null);//sh.getIdentifierOrNumber();
+		String result = null;
 		if (param_name != null) {
-			String result = parent == null ? null : parent.getTemplateParameter(param_name);
-			String def_value = sh.getChar('|') ? sh.getStringParameter(null) : null;
-			while (sh.getChar('|')) {//ignore any further parameter(s)
-				sh.getStringParameter(null);
-			}
-			if (sh.getSequence("}}}")) {
-				if (result == null)
-					result = def_value == null ? "{{{" + param_name + "}}}" : parseParameter(def_value, wp, parent);//use literal or default value
-				sb.append(result);
-				return true;
-			}		
+			param_name = parseParameter(param_name, wp, parent);
+			if (parent != null)
+				result = parent.getTemplateParameter(param_name);
 		}
+		String def_value = sh.getChar('|') ? sh.getStringParameter(null) : null;
+		while (sh.getChar('|')) {//ignore any further parameter(s)
+			sh.getStringParameter(null);
+		}
+		if (sh.getSequence("}}}")) {
+			if (result == null)
+				result = def_value == null ? "{{{" + param_name + "}}}" : parseParameter(def_value, wp, parent);//use literal or default value
+			sb.append(result);
+//System.out.println("result:"+result);
+			return true;
+		}		
 		return false;
 	}
 
