@@ -96,7 +96,7 @@ public final class ScribuntoLuaEngine implements MwInterface {
 		}
 	}
 
-    public String invoke(String moduleName, String functionName, Frame parent, Map<String, String> params, boolean trace_calls) throws ScribuntoException {
+    public String invoke(String moduleName, String functionName, Frame parent, Map<String, String> params, boolean isSubst, boolean trace_calls) throws ScribuntoException {
 		if (debug || trace_calls) {
 			System.out.println("invoke, moduleName="+moduleName+", functionName="+functionName);
 			for(Map.Entry<String,String> entry : params.entrySet()) {
@@ -112,7 +112,7 @@ public final class ScribuntoLuaEngine implements MwInterface {
                 throw new ScribuntoException(e);
             }
         }
-        final Frame frame = new Frame(module_label + moduleName, params, parent, true);
+        final Frame frame = new Frame(module_label + moduleName, params, parent, isSubst);
         final LuaValue function = loadFunction(functionName, prototype, frame);
 
         return executeFunctionChunk(function, frame);
@@ -336,7 +336,7 @@ public final class ScribuntoLuaEngine implements MwInterface {
     private LuaValue isSubsting() {
         return new ZeroArgFunction() {
             @Override public LuaValue call() {
-                return LuaValue.valueOf(true);
+                return LuaValue.valueOf(getFrameById(toLuaString("current")).isSubsting());
             }
         };
     }

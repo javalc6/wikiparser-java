@@ -250,7 +250,7 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 						parameterMap.forEach((name, value) -> System.out.print(name + (value.isEmpty() ? "" : " = " + value) + ", "));
 						System.out.println(")");
 					}
-					Frame frame = new Frame(template_label + identifier, parameterMap, parent, true);//frame of this template
+					Frame frame = new Frame(template_label + identifier, parameterMap, parent, false);//frame of this template
 					StringBuilder sb = new StringBuilder();
 					WikiScanner sh = new WikiScanner(delete_comments(template_text));
 					template_body(sh, sb, wp, frame);

@@ -69,7 +69,7 @@ public final class Invoke extends ParserFunction {
 			if (trace_calls)
 				System.out.println("MODULE:" + module_name + "." + function_name + "(" + parameterMap + ")");
 			try {
-				return sle.invoke(module_name, function_name, parent, parameterMap, trace_calls);
+				return sle.invoke(module_name, function_name, parent, parameterMap, false, trace_calls);
 			} catch (LuaError | ScribuntoException ex) {
 				if (!trace_calls)
 					System.out.println("MODULE:" + module_name + "." + function_name + "(" + parameterMap + ")");
