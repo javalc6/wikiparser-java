@@ -468,7 +468,6 @@ final public class WikiFormatter {
 						idxc = keyword.indexOf(":", 1);
 						if (idxc != -1)	{
 							String media = keyword.substring(0, idxc).toLowerCase();
-System.out.println("***"+media+"***");
 							if (not_allowed_media.contains(media)) {
 								last = idx2 + 2;
 								ids = last;
