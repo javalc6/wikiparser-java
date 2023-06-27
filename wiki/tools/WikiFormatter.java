@@ -469,9 +469,9 @@ final public class WikiFormatter {
 						if (idxc != -1)	{
 							String media = keyword.substring(0, idxc).toLowerCase();
 							if (not_allowed_media.contains(media)) {
-								last = idx2 + 2;
-								ids = last;
-								continue;//iterate
+								sb.delete(idx, idx2 + 2);
+								len = sb.length();
+								continue;
 							}
 						}
 						result.append(sb, last, idx);
