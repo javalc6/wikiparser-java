@@ -28,9 +28,12 @@ DO NOT USE THIS SOFTWARE IF YOU DON'T AGREE WITH STATED CONDITIONS.
 package wiki.tools;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.List;
 
 final public class WikiFormatter {
 	final static String category_label = "Category:";
+	final static List<String> not_allowed_media = Arrays.asList(new String[]{"file", "image", "audio"});
 
     public static String formatWikiText(StringBuilder lemma, StringBuilder wikitext, String linkBaseURL) {
 		StringBuilder result = new StringBuilder(wikitext.length());
@@ -461,6 +464,16 @@ final public class WikiFormatter {
 							sb.delete(idx, idx2 + 2);
 							len = sb.length();
 							continue;
+						}
+						idxc = keyword.indexOf(":", 1);
+						if (idxc != -1)	{
+							String media = keyword.substring(0, idxc).toLowerCase();
+System.out.println("***"+media+"***");
+							if (not_allowed_media.contains(media)) {
+								last = idx2 + 2;
+								ids = last;
+								continue;//iterate
+							}
 						}
 						result.append(sb, last, idx);
 //TODO: specific handling for interwiki [[:w:....]]
