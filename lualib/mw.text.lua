@@ -55,7 +55,6 @@ end
 
 function mwtext.decode( s, decodeNamedEntities )
 	local dec
-	decodeNamedEntities = false -- hack to bypass missing implementation of getEntityTable() in MwText.java
 	if decodeNamedEntities then
 		if decode_named_entities == nil then
 			decode_named_entities = php.getEntityTable()

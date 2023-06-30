@@ -89,7 +89,6 @@ The parser is not optimized for speed.
 
 # Todo
 The following future improvements will enhance the parser:
-- implement getEntityTable() in MwText.java to avoid hack in mw.text.lua (function mwtext.decode)
 - language localization
 - interwiki links
 - implement stubs with real code
