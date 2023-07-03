@@ -90,10 +90,8 @@ The parser is not optimized for speed.
 # Todo
 The following future improvements will enhance the parser:
 - language localization
-- interwiki links
-- implement stubs with real code
+- improve interwiki links
 - define missing namespaces in class NameSpaces
-- implement remaining magic words, e.g. pagesincat, pagesincategory, pagesinnamespace,....
 - improve quality of html renderer
 - improve performance
 

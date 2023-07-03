@@ -51,7 +51,7 @@ usage:  java -cp .;lib\luaj-jse-3.0.2p.jar wiki.WikiFind <word>
 
 */
 public class WikiFind {
-	final static String linkBaseURL = "https://en.wiktionary.org/wiki/";
+	final static String linkBaseURL = "https://%s.wiktionary.org/wiki/";
 
 	private static void doSearch(String keyword) throws IOException, ParseException {
 		HashMap<String, String> name2template = new HashMap<>();
@@ -67,7 +67,7 @@ public class WikiFind {
 			TemplateParser tp = new TemplateParser();
 			WikiPage wp = new WikiPage(keyword,  new SimpleDateFormat("dd-MM-yyyy hh:mm").parse("01-01-2020 15:30"),
 					getLocale("en"), tp, name2template, name2module, false, name2content, true);
-			String formatted = WikiFormatter.formatWikiText(new StringBuilder(keyword), new StringBuilder(tp.parse(definition, wp)), linkBaseURL);
+			String formatted = WikiFormatter.formatWikiText(new StringBuilder(keyword), new StringBuilder(tp.parse(definition, wp)), linkBaseURL, "en");
 			PrintWriter output = new PrintWriter("wiki.html", "UTF-8");
 			output.println(formatted);
 			output.close();

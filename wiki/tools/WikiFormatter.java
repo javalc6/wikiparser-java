@@ -29,13 +29,16 @@ package wiki.tools;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import static wiki.tools.Utilities.getLanguageNames;
 
 final public class WikiFormatter {
 	final static String category_label = "Category:";
 	final static List<String> not_allowed_media = Arrays.asList(new String[]{"file", "image", "audio"});
+	final static HashMap<String, String> code2language = getLanguageNames();
 
-    public static String formatWikiText(StringBuilder lemma, StringBuilder wikitext, String linkBaseURL) {
+    public static String formatWikiText(StringBuilder lemma, StringBuilder wikitext, String linkBaseURL, String language) {
 		StringBuilder result = new StringBuilder(wikitext.length());
 		StringBuilder buf = new StringBuilder(128);
 		StringBuilder old_list = new StringBuilder();
@@ -87,7 +90,7 @@ final public class WikiFormatter {
 							buf.append("</p>");
 							open_p = false;
 						}
-						applyRules(buf, result, linkBaseURL);
+						applyRules(buf, result, linkBaseURL, language);
 						buf.setLength(0);
 					}
 					int j = 0;
@@ -305,7 +308,7 @@ final public class WikiFormatter {
 							buf.append("</p>");
 							open_p = false;
 						}
-						applyRules(buf, result, linkBaseURL);
+						applyRules(buf, result, linkBaseURL, language);
 						buf.setLength(0);
 					}
 					for (int j = old_list.length() - 1; j >= 0; j--) {
@@ -370,7 +373,7 @@ final public class WikiFormatter {
 				buf.append("</p>");
 				open_p = false;
 			}
-			applyRules(buf, result, linkBaseURL);
+			applyRules(buf, result, linkBaseURL, language);
 			buf.setLength(0);
 		}
 
@@ -426,7 +429,7 @@ final public class WikiFormatter {
         }
     }
 
-    private static void applyRules(StringBuilder sb, StringBuilder result, String linkBaseURL) {
+    private static void applyRules(StringBuilder sb, StringBuilder result, String linkBaseURL, String language) {
 		int ids = 0, ids2; int last = 0;
 		int len = sb.length();
         while ((ids < len) && ((ids = sb.indexOf("[", ids)) != -1)) {
@@ -466,17 +469,29 @@ final public class WikiFormatter {
 							continue;
 						}
 						idxc = keyword.indexOf(":", 1);
+						String path = keyword;
+						String baseURL = null;
 						if (idxc != -1)	{
 							String media = keyword.substring(0, idxc).toLowerCase();
+							if (media.startsWith(":"))
+								media = media.substring(1);//remove initial :
 							if (not_allowed_media.contains(media)) {
 								sb.delete(idx, idx2 + 2);
 								len = sb.length();
 								continue;
 							}
+							if (code2language.containsKey(media)) {
+								baseURL = String.format(linkBaseURL, media);
+								path = keyword.substring(idxc + 1);
+							} else if (media.equals("w")) {
+								baseURL = "https://" + language + ".wikipedia.org/wiki/";
+								path = keyword.substring(idxc + 1);
+							}
 						}
+						if (baseURL == null)
+							baseURL = String.format(linkBaseURL, language);
 						result.append(sb, last, idx);
-//TODO: specific handling for interwiki [[:w:....]]
-						result.append("<a href=\"").append(linkBaseURL).append(sb, idx+2, idxb).append("\">").append(sb, idxb+1, idx2).append("</a>");
+						result.append("<a href=\"").append(baseURL).append(path).append("\">").append(sb, idxb+1, idx2).append("</a>");
 						last = idx2 + 2;
 						ids = last;
 					} else { // here we are not in the case: [[..[[...]]
@@ -486,11 +501,12 @@ final public class WikiFormatter {
 							arg1 = arg1.substring(0, idxd);
 						String url_text = arg1;
 						idxc = arg1.indexOf(":");
+//TODO: specific handling for interwiki [[:w:....]]
 						String scheme;
 						if (idxc != -1)	{
 							scheme = arg1.substring(0, idxc + 1);
 							url_text = arg1.substring(idxc + 1);
-						} else scheme = linkBaseURL;
+						} else scheme = String.format(linkBaseURL, language);
 
 
 						result.append(sb, last, idx);
