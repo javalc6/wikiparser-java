@@ -90,7 +90,6 @@ The parser is not optimized for speed.
 # Todo
 The following future improvements will enhance the parser:
 - language localization
-- improve interwiki links
 - define missing namespaces in class NameSpaces
 - improve quality of html renderer
 - improve performance

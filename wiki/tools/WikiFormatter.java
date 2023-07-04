@@ -461,65 +461,51 @@ final public class WikiFormatter {
                         idx = idxk;
                     }
 					int idxb = sb.indexOf("|", idx + 2);
+					String baseURL = null, display_text = null, internal_link;
 					if ((idxb != -1)  && (idxb < idx2)) {
-						String keyword = sb.substring(idx + 2, idxb).trim(); // +2 == "[[".length()
-						if (keyword.startsWith(category_label)) {//suppress category, example: [[Category:English abbreviations|CROSS]]
+						internal_link = sb.substring(idx + 2, idxb).trim(); // +2 == "[[".length()
+						display_text = sb.substring(idxb + 1, idx2);
+					} else internal_link = sb.substring(idx + 2, idx2).trim();
+					String path = internal_link;
+					if (internal_link.startsWith(category_label)) {//suppress category, example: [[Category:English abbreviations|CROSS]]
+						sb.delete(idx, idx2 + 2);
+						len = sb.length();
+						continue;
+					}
+					idxc = internal_link.indexOf(":", 1);
+					if (idxc != -1)	{
+						String media = internal_link.substring(0, idxc).toLowerCase();
+						if (media.startsWith(":"))
+							media = media.substring(1);//remove initial :
+						if (not_allowed_media.contains(media)) {
 							sb.delete(idx, idx2 + 2);
 							len = sb.length();
 							continue;
 						}
-						idxc = keyword.indexOf(":", 1);
-						String path = keyword;
-						String baseURL = null;
-						if (idxc != -1)	{
-							String media = keyword.substring(0, idxc).toLowerCase();
-							if (media.startsWith(":"))
-								media = media.substring(1);//remove initial :
-							if (not_allowed_media.contains(media)) {
-								sb.delete(idx, idx2 + 2);
-								len = sb.length();
-								continue;
-							}
-							if (code2language.containsKey(media)) {
-								baseURL = String.format(linkBaseURL, media);
-								path = keyword.substring(idxc + 1);
-							} else if (media.equals("w")) {
-								baseURL = "https://" + language + ".wikipedia.org/wiki/";
-								path = keyword.substring(idxc + 1);
-							}
+						if (code2language.containsKey(media)) {
+							baseURL = String.format(linkBaseURL, media);
+							path = internal_link.substring(idxc + 1);
+						} else if (media.equals("w")) {
+							baseURL = "https://" + language + ".wikipedia.org/wiki/";
+							path = internal_link.substring(idxc + 1);
+/*						} else {
+							baseURL = internal_link.substring(0, idxc + 1);
+							path = internal_link.substring(idxc + 1);*/
 						}
-						if (baseURL == null)
-							baseURL = String.format(linkBaseURL, language);
-						result.append(sb, last, idx);
-						result.append("<a href=\"").append(baseURL).append(path).append("\">").append(sb, idxb+1, idx2).append("</a>");
-						last = idx2 + 2;
-						ids = last;
-					} else { // here we are not in the case: [[..[[...]]
-						String arg1 = sb.substring(idx + 2, idx2);
-						idxd = arg1.indexOf('#');
-						if (idxd != -1)
-							arg1 = arg1.substring(0, idxd);
-						String url_text = arg1;
-						idxc = arg1.indexOf(":");
-//TODO: specific handling for interwiki [[:w:....]]
-						String scheme;
-						if (idxc != -1)	{
-							scheme = arg1.substring(0, idxc + 1);
-							url_text = arg1.substring(idxc + 1);
-						} else scheme = String.format(linkBaseURL, language);
-
-
-						result.append(sb, last, idx);
-						result.append("<a href=\"").append(scheme);
-	    	    		try {
-							result.append(URLEncoder.encode(url_text, "UTF-8"));
-						} catch (UnsupportedEncodingException e) {
-							result.append(url_text); //fallback old way...
-						}
-						result.append("\">").append(arg1).append("</a>");
-						last = idx2 + 2;
-						ids = last;
 					}
+					if (baseURL == null)
+						baseURL = String.format(linkBaseURL, language);
+					result.append(sb, last, idx);
+					result.append("<a href=\"").append(baseURL);
+					try {
+						result.append(URLEncoder.encode(path, "UTF-8"));
+					} catch (UnsupportedEncodingException e) {
+						result.append(path); //fallback old way...
+					}
+					result.append("\">").append(display_text == null ? internal_link : display_text).append("</a>");
+
+					last = idx2 + 2;
+					ids = last;
 				} else ids++;
 			}
         }
