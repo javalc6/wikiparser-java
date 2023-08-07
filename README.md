@@ -83,16 +83,18 @@ Support libraries:
 - luabit\\\*.lua, lualib\\\*.lua and ustring\\\*.lua: lua scripts, reference: https://github.com/wikimedia/mediawiki-extensions-Scribunto/tree/master/includes/Engines/LuaCommon/lualib
 
 # Caveats
-This wiki parser is simplified and light, but has several limitations. It is designed only for english wiktionary.
-It does not aim to achieve 100% features of php based wiki parser and it is not tested versus wikipedia.
+This wiki parser is simplified and light, but has several limitations.
+It does not aim to achieve 100% features of php based wiki parser and it is designed for the wiktionary.
 The parser is not optimized for speed.
 
-# Todo
-The following future improvements will enhance the parser:
-- language localization
-- define missing namespaces in class NameSpaces
-- improve quality of html renderer
-- improve performance
+# Localization
+Language localization is supported by defining properties file in the ``wiki`` folder with filename wiktionary_\<language code\>.properties
+
+The following optional properties may be defined in localization files:
+- ``thislanguage`` and ``language_pattern``: filter criteria to extract only wanted language
+- ``module``: localized label for Module
+- ``template``: localized label for Template
+- ``redirect``: localized label for Redirect
 
 # Credits
 This software integrates 3pp software to perform specific activities.

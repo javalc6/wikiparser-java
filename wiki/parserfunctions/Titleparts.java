@@ -42,7 +42,7 @@ public final class Titleparts extends ParserFunction {
             int num = 0;
             if (parameters.size() > 1) {
                 try {
-                    num = Integer.parseInt(tp.parseParameter( parameters.get(1), wp, parent));
+                    num = Integer.parseInt(tp.parseParameter( parameters.get(1), wp, parent).trim());
                 } catch (NumberFormatException nfe) {
 //ignore, default is 0
                 }
@@ -50,7 +50,7 @@ public final class Titleparts extends ParserFunction {
             int first = 1;
             if (parameters.size() > 2) {
                 try {
-                    first = Integer.parseInt(tp.parseParameter( parameters.get(2), wp, parent));
+                    first = Integer.parseInt(tp.parseParameter( parameters.get(2), wp, parent).trim());
                     if (first == 0) {
                         first = 1;
                     }

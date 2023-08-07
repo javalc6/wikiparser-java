@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.io.*;
 import java.util.regex.Pattern;
@@ -41,6 +42,11 @@ import bzip2.BZip2CompressorInputStream;
 import java.nio.file.Paths;
 import java.nio.file.Files; 
 
+import wiki.NameSpaces.NameSpace;
+import static wiki.NameSpaces.getNameSpace;
+import static wiki.NameSpaces.getNameSpaceNumber;
+import static wiki.tools.Utilities.getResourceBundle;
+import static wiki.tools.Utilities.getResourceString;
 /*
 Wiktionary splitter: this standalone tool splits the xml file wiktionary downloaded from https://dumps.wikimedia.org/enwiktionary/latest/
 
@@ -57,23 +63,17 @@ compile: javac -encoding UTF-8 wiki\WikiSplitter.java
 
 usage:  java wiki.WikiSplitter <filename>
 
-Note: The value of constant FilterOtherLanguages is useful to select only the wanted language before generating wiki.dat
+Note: The constant FilterOtherLanguages can be used to select only the wanted language before generating wiki.dat, but it requires the definition of two properties 'thislanguage' and 'language_pattern' with ad-hoc patterns
 
 This software incorporates bzip2 decompressor from in https://commons.apache.org/proper/commons-compress, under Apache License version 2.0
 */
 public class WikiSplitter {
 	private final static boolean FilterOtherLanguages = true;//filter out sections with other languages using patterns 'thislanguage' and 'language_pattern'
 
-	private final static Pattern thislanguage = Pattern.compile("==english=="); // detect correct language ==english (note: use lowercase)
-	private final static Pattern language_pattern = Pattern.compile("==[^=]*\\p{L}[^=]*==");
-
 	private final static Pattern keywords = Pattern.compile("[\\p{L}\\-][\\p{L}'/.\\-\\s]*");// Pattern to check that keyworks start with a Letter and contains letters, spaces, - and '
 	private final static String EOL = "\r\n";
 
 	private final static int max_word_length = 127; // max length of a word in the index (value must be lower than 128)
-
-	private final static String template_label = "Template:";
-	private final static String module_label = "Module:";
 
 	private final TreeMap<String, String> name2module = new TreeMap<>();
 	private final TreeMap<String, String> name2template = new TreeMap<>();
@@ -190,7 +190,7 @@ public class WikiSplitter {
 	}
 
 	class WikiHandler extends DefaultHandler {
-		boolean isTitle = false;
+		boolean collectData = false;
 		boolean isText = false;
 		boolean isPage = false;
 		boolean isLemma = false;
@@ -202,6 +202,12 @@ public class WikiSplitter {
 		final TreeMap <String, String> dict;
 		final ArrayList<String> excluded;
 		final String[] language;
+
+		ResourceBundle resourceBundle;
+		Pattern thislanguage;
+		Pattern language_pattern;
+
+
 
 		WikiHandler(TreeMap<String, String> dict, ArrayList<String> excluded, String[] language) {
 			super();
@@ -222,6 +228,12 @@ public class WikiSplitter {
 						String language_name = str.substring(0, 1).toUpperCase(locale) + str.substring(1);//capitalize language_name
 						Locale.setDefault(locale);
 
+						resourceBundle = getResourceBundle(locale);
+						if (resourceBundle == null) {
+							System.out.println("Warning: missing property file for locale: " + locale);
+							System.out.println("Warning: input file will be parsed with default English namespaces");
+						}
+
 						System.out.println();
 						System.out.println("Language: "+language[0]+" ("+language_name+")");
 						break;
@@ -234,12 +246,15 @@ public class WikiSplitter {
 				isModule = false;
 			} else if (isPage) {
 				if (qName.equalsIgnoreCase("title")) {
-					isTitle = true;
+					collectData = true;
 				} else if (qName.equalsIgnoreCase("text")) {
 					isText = true;
+					collectData = true;
 				} else if (isText && qName.equalsIgnoreCase("math")) {
 					buf.append("<math>"); // echo tag
 				}
+			} else if (qName.equalsIgnoreCase("dbname")) {
+				collectData = true; 
 			}
 		}
 	 
@@ -247,17 +262,27 @@ public class WikiSplitter {
 			if (qName.equalsIgnoreCase("page")) {
 				isPage = false;
 			} else if (qName.equalsIgnoreCase("title")) {
-				isTitle = false; 
 				title = buf.toString().trim();
-				if (title.startsWith(template_label)) {
-					isTemplate = true;
-				} else if (title.startsWith(module_label)) {
-					isModule = true;
-				} else if (title.length() <= max_word_length && keywords.matcher(title).matches()) {
-					isLemma = true;
-				} else {
-					excluded.add(title);
+				int idx = title.indexOf(":");
+				if (idx != -1) {
+					String ns = title.substring(0, idx);
+					Integer ns_id = getNameSpaceNumber(ns);
+					if (ns_id != null) {
+						if (ns_id == 10) {
+							isTemplate = true;
+						} else if (ns_id == 828) {
+							isModule = true;
+						}
+					}
 				}
+				if (!isTemplate && !isModule) {
+					if (title.length() <= max_word_length && keywords.matcher(title).matches()) {
+						isLemma = true;
+					} else {
+						excluded.add(title);
+					}
+				}
+				collectData = false; 
 				buf.setLength(0);
 			} else if (qName.equalsIgnoreCase("text")) {
 				isText = false; 
@@ -265,7 +290,7 @@ public class WikiSplitter {
 					if (dict.containsKey(title)) { // keyword collision, shall never happen!
 						System.out.print("Unexpected collision for: " + title);
 					}
-					String definition = FilterOtherLanguages ? doFilterOtherLanguages(buf) : buf.toString();
+					String definition = FilterOtherLanguages && thislanguage != null && language_pattern != null ? doFilterOtherLanguages(buf, thislanguage, language_pattern) : buf.toString();
 					if (!definition.isEmpty()) {
 						dict.put(title, definition.replace("\n", EOL).trim());
 						counter++;
@@ -275,14 +300,46 @@ public class WikiSplitter {
 
 					isLemma = false;
 				} else if (isModule) {
-					String module_title = title.substring(module_label.length());//delete label from module
+					int idx = title.indexOf(":");
+					String module_title = title.substring(idx + 1);//delete label from module
 					name2module.put(module_title, buf.toString().replace("\n", EOL).trim());
 					isModule = false;
 				} else if (isTemplate) {
-					String template_title = title.substring(template_label.length());//delete label from template
+					int idx = title.indexOf(":");
+					String template_title = title.substring(idx + 1);//delete label from template
 					name2template.put(template_title, buf.toString().replace("\n", EOL).trim());
 					isTemplate = false;
 				}
+				collectData = false; 
+				buf.setLength(0);
+			} else if (qName.equalsIgnoreCase("dbname")) {
+				String dbname = buf.toString().trim();
+				if (dbname.endsWith("wiktionary")) {
+					String lang = dbname.substring(0, dbname.length() - 10);//10 = "wiktionary".length()
+
+					if (resourceBundle != null)	{
+						String _thislanguage = getResourceString(resourceBundle, "thislanguage");
+						String _language_pattern = getResourceString(resourceBundle, "language_pattern");
+						if (_thislanguage != null && _language_pattern != null)	{
+							thislanguage = Pattern.compile(_thislanguage);
+							language_pattern = Pattern.compile(_language_pattern);
+						}
+
+						String _template = getResourceString(resourceBundle, "template");
+						if (_template != null) {
+							NameSpace template_ns = getNameSpace(10);
+							template_ns.add_alias(_template);
+						}
+						String _module = getResourceString(resourceBundle, "module");
+						if (_module != null) {
+							NameSpace module_ns = getNameSpace(828);
+							module_ns.add_alias(_module);
+						}
+					}
+				} else {
+					System.out.println("warning, this file is not a wiktionary, dbname: " + dbname);
+				}
+				collectData = false; 
 				buf.setLength(0);
 			} else if (isText && qName.equalsIgnoreCase("math")) {
 				buf.append("</math>");// echo tag
@@ -290,13 +347,13 @@ public class WikiSplitter {
 		}
 
 		public void characters(char[] ch, int start, int length) throws SAXException {
-			if (isTitle||isText)
-				for (int i=start; i<start+length; i++)
+			if (collectData)
+				for (int i = start; i < start + length; i++)
 					buf.append(ch[i]);
 		}	 
 	}
 
-	private String doFilterOtherLanguages(StringBuilder buf) {
+	private String doFilterOtherLanguages(StringBuilder buf, Pattern thislanguage, Pattern language_pattern) {
 		StringBuilder result = new StringBuilder();
 		boolean correct_language = false;
 		SegmentReader sr = new SegmentReader(buf);

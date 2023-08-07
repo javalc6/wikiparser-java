@@ -23,11 +23,17 @@ DO NOT USE THIS SOFTWARE IF YOU DON'T AGREE WITH STATED CONDITIONS.
 */
 package wiki.tools;
 
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.TimeZone;
+
 /*
   This class contains miscellaneous utility functions
 */
@@ -49,6 +55,26 @@ final public class Utilities {
             if (split != -1) { // split language country
                 return new Locale(lang_code.substring(0, split), lang_code.substring(split + 1));
             } else return new Locale(lang_code);
+        }
+    }
+
+    public static ResourceBundle getResourceBundle(Locale locale) {
+        try {
+			File file = new File("wiki");
+			ClassLoader loader = new URLClassLoader(new URL[]{file.toURI().toURL()});
+			return ResourceBundle.getBundle("wiktionary", locale, loader);
+        } catch (MissingResourceException e) {
+			return null;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String getResourceString(ResourceBundle bundle, String key) {
+        try {
+            return bundle.getString(key);
+        } catch (Exception e) {
+            return null;
         }
     }
 

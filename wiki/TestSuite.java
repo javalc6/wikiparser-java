@@ -131,7 +131,7 @@ final public class TestSuite {
 		testEvaluate(tp, "{{=}}", wp, "=");
 		testEvaluate(tp, "{{{1|prova}}}", wp, "prova");
 		testEvaluate(tp, "{{anchorencode:x y z á é}}", wp, "x_y_z_á_é");
-		testEvaluate(tp, "{{formatnum:987,654,321.654321|R}}", wp, "9.87654321654321E8");
+		testEvaluate(tp, "{{formatnum:987,654,321.654321| R}}", wp, "9.87654321654321E8");
 		testEvaluate(tp, "{{formatnum:987654321.654}}", wp, "987,654,321.654");
 		testEvaluate(tp, "{{lc:blaBLA}}", wp, "blabla");
 		testEvaluate(tp, "{{lcfirst:BLABLA}}", wp, "bLABLA");
@@ -141,27 +141,32 @@ final public class TestSuite {
 		testEvaluate(tp, "{{ns:T}}", wp, "Template");
 		testEvaluate(tp, "{{ns:temPlate}}", wp, "Template");
 		testEvaluate(tp, "{{nse:help talk}}", wp, "Help_talk");
-		testEvaluate(tp, "{{padleft:|1|xyz}}", wp, "x");
-		testEvaluate(tp, "{{padleft:xyz|5|_}}", wp, "__xyz");
+		testEvaluate(tp, "{{padleft:| 1|xyz}}", wp, "x");
+		testEvaluate(tp, "{{padleft:xyz| 5|_}}", wp, "__xyz");
 		testEvaluate(tp, "{{padright:xyz|5|_}}", wp, "xyz__");
-		testEvaluate(tp, "{{padright:xyz|5}}", wp, "xyz00");
-		testEvaluate(tp, "{{plural:1|is|are}}", wp, "is");
-		testEvaluate(tp, "{{plural:3|is|are}}", wp, "are");
+		testEvaluate(tp, "{{padright:xyz|5 }}", wp, "xyz00");
+		testEvaluate(tp, "{{plural:1|is |are}}", wp, "is");
+		testEvaluate(tp, "{{plural:3|is|are }}", wp, "are");
 		testEvaluate(tp, "{{localurl:MediaWiki}}", wp, "/wiki/MediaWiki");
 //		testEvaluate(tp, "{{localurl:MediaWiki|printable=yes}}", wp, "/w/index.php?title=MediaWiki&printable=yes");
 		testEvaluate(tp, "{{fullurl:Category:Top level}}", wp, "//en.wiktionary.org/wiki/Category:Top_level");
 		testEvaluate(tp, "{{urlencode:x:y/z~w}}", wp, "x%3Ay%2Fz%7Ew");
-		testEvaluate(tp, "{{#formatdate:dec 25,2009|dmy}}", wp, "dec 25,2009");
+		testEvaluate(tp, "{{#formatdate:dec 25,2009| dmy}}", wp, "dec 25,2009");
 		testEvaluate(tp, "{{#ifeq: foo | bar | equal | not equal}}", wp, "not equal");
 		testEvaluate(tp, "{{#ifeq: 1233.00 | 1233 |equal | not}}", wp, "equal");
 //		testEvaluate(tp, "{{#time: Y-m-d }}", wp, "2024-01-01");
-		testEvaluate(tp, "{{#time:d F Y|1988-02-28|nl}}", wp, "28 februari 1988");
+		testEvaluate(tp, "{{#time:d F Y|1988-02-28 | nl}}", wp, "28 februari 1988");
+		testEvaluate(tp, "{{#time: r|Oct 26, 1981}}", wp, "Mon, 26 Oct 1981 00:00:00 +0000");
+		testEvaluate(tp, "{{#time: r|26 Oct 1981}}", wp, "Mon, 26 Oct 1981 00:00:00 +0000");
+		testEvaluate(tp, "{{#time: r|Oct. 26, 1981}}", wp, "Mon, 26 Oct 1981 00:00:00 +0000");
+//		testEvaluate(tp, "{{#time: r|Tue October 26, 1981}}", wp, "Tue, 27 Oct 1981 00:00:00 +0000");
 		testEvaluate(tp, "{{#time: r|26. Oct 81}}", wp, "Mon, 26 Oct 1981 00:00:00 +0000");
 		testEvaluate(tp, "{{#time: r|26 Oct 1981, 12:49:16}}", wp, "Mon, 26 Oct 1981 12:49:16 +0000");
-		testEvaluate(tp, "{{#time: r|Oct 26th 1981}}", wp, "Mon, 26 Oct 1981 00:00:00 +0000");
+		testEvaluate(tp, "{{#time: r| Oct 26th 1981 }}", wp, "Mon, 26 Oct 1981 00:00:00 +0000");
 		testEvaluate(tp, "{{#time: r|October 26 1981}}", wp, "Mon, 26 Oct 1981 00:00:00 +0000");
 		testEvaluate(tp, "{{#time: r|26.10.1981}}", wp, "Mon, 26 Oct 1981 00:00:00 +0000");
 		testEvaluate(tp, "{{#time: r|2000 December 20}}", wp, "<strong class=\"error\">textbook:2000 December 20</strong>");
+//		testEvaluate(tp, "{{#time: r|October 26}}", wp, "Mon, 26 Oct 2023 00:00:00 +0000");	
 		testEvaluate(tp, "{{#iferror: {{#time: Y-m-d }} | error | correct }}", wp, "correct");
 		testEvaluate(tp, "{{#iferror: {{#time: r|2000 December 20}} | error | correct }}", wp, "error");
 		testEvaluate(tp, "{{#titleparts: Talk:Foo/bar/baz/quok | 2 | 2 }}", wp, "bar/baz");
@@ -171,8 +176,8 @@ final public class TestSuite {
 		testEvaluate(tp, "{{#switch: baz | foo = Foo | baz = Baz | Bar }}", wp, "Baz");
 		testEvaluate(tp, "{{#switch: foo | foo| baz = Baz | Bar }}", wp, "Baz");
 		testEvaluate(tp, "{{#switch: boh | foo = Foo | #default = Bar | baz = Baz }}", wp, "Bar");
-		testEvaluate(tp, "{{#invoke:testmodule|echo|text=ciao}}", wp, "ciao");
-		testEvaluate(tp, "{{safesubst:#invoke:domath|pitagora}}", wp, "5");
+		testEvaluate(tp, "{{#invoke:testmodule|echo |text=ciao}}", wp, "ciao");
+		testEvaluate(tp, "{{safesubst:#invoke:domath|pitagora }}", wp, "5");
 		testEvaluate(tp, "{{#expr:2*sin(pi/6)}}", wp, "0.9999999999999999");
 		testEvaluate(tp, "{{#expr:{{{sub|0}}}+1}}", wp, "1");
 		testEvaluate(tp, "{{#ifexpr: 1 > 0 | yes }}", wp, "yes");
@@ -182,6 +187,7 @@ final public class TestSuite {
 		testEvaluate(tp, "{{asitis}}", wp, "asitis");
 		testEvaluate(tp, "{{loop}}", wp, "[[Template:loop]]");
 		testEvaluate(tp, "{{echo|alfa}}", wp, "alfa");
+		testEvaluate(tp, "{{echo| alfa }}", wp, " alfa ");
 		testEvaluate(tp, "{{echo}}", wp, "default");
 		testEvaluate(tp, "{{echo|a{{=}}b}}", wp, "a=b");
 		testEvaluate(tp, "{{echo|a<nowiki>=</nowiki>b}}", wp, "a=b");
@@ -226,7 +232,9 @@ final public class TestSuite {
 		readfile(name2template, "templates.dat", false);
 		readfile(name2module, "modules.dat", false);
 		HashMap<String, String> name2content = new HashMap<>();
-		readfile(name2content, "wiki.dat", true);
+		String firstline = readfile(name2content, "wiki.dat", true);
+		int idx = firstline.indexOf("|");
+		String language = firstline.substring(0, idx);
 
 		System.out.println("Number of templates: " + name2template.size());
 		System.out.println("Number of modules: " + name2module.size());
@@ -237,7 +245,7 @@ final public class TestSuite {
 			System.out.println("Testing: " + keyword);
 			try	{
 				WikiPage wp = new WikiPage(keyword,  new SimpleDateFormat("dd-MM-yyyy hh:mm").parse("01-01-2020 15:30"),
-						getLocale("en"), tp, name2template, name2module, false, name2content, true);
+						getLocale(language), tp, name2template, name2module, false, name2content, true);
 				tp.parse(definition, wp);				
 			} catch (ParseException ex) {
 			}
@@ -299,13 +307,14 @@ final public class TestSuite {
 		name2page.put(identifier.trim(), item);
 	}
 
-	public static void readfile(HashMap<String, String> name2page, String fn, boolean isWikiDat) {
+	public static String readfile(HashMap<String, String> name2page, String fn, boolean isWikiDat) {
+		String firstline = null;
 		try (LineNumberReader in = new LineNumberReader(new InputStreamReader(new FileInputStream(fn), StandardCharsets.UTF_8))) {
 			StringBuilder definition = new StringBuilder();
 			String st, identifier = "";
 			String [] result;
 			if (isWikiDat)
-				in.readLine(); // skip first line in wiki.dat (for future use)
+				firstline = in.readLine(); // read first line in wiki.dat
 			int skiplines = 0;
 			while((st = in.readLine()) != null) {
 				if (skiplines > 0) {
@@ -334,6 +343,7 @@ final public class TestSuite {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return firstline;//firstline is returned only in case of isWikiDat, otherwise null is returned
 	}
 
 }

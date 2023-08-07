@@ -60,27 +60,30 @@ public class WikiFind {
 		System.out.println("Reading input files, please wait...");
 		readfile(name2template, "templates.dat", false);
 		readfile(name2module, "modules.dat", false);
-		readfile(name2content, "wiki.dat", true);
+		String firstline = readfile(name2content, "wiki.dat", true);
+		int idx = firstline.indexOf("|");
+		String language = firstline.substring(0, idx);
 		String definition = name2content.get(keyword);
 		if (definition != null) {
 			System.out.println(keyword + " found, rendering and writing wiki.html");
 			TemplateParser tp = new TemplateParser();
 			WikiPage wp = new WikiPage(keyword,  new SimpleDateFormat("dd-MM-yyyy hh:mm").parse("01-01-2020 15:30"),
-					getLocale("en"), tp, name2template, name2module, false, name2content, true);
-			String formatted = WikiFormatter.formatWikiText(new StringBuilder(keyword), new StringBuilder(tp.parse(definition, wp)), linkBaseURL, "en");
+					getLocale(language), tp, name2template, name2module, false, name2content, true);
+			String formatted = WikiFormatter.formatWikiText(new StringBuilder(keyword), new StringBuilder(tp.parse(definition, wp)), linkBaseURL, language);
 			PrintWriter output = new PrintWriter("wiki.html", "UTF-8");
 			output.println(formatted);
 			output.close();
 		} else System.out.println("Unable to find " + keyword);
 	}
 
-	public static void readfile(HashMap<String, String> name2page, String fn, boolean isWikiDat) {
+	public static String readfile(HashMap<String, String> name2page, String fn, boolean isWikiDat) {
+		String firstline = null;
 		try (LineNumberReader in = new LineNumberReader(new InputStreamReader(new FileInputStream(fn), StandardCharsets.UTF_8))) {
 			StringBuilder definition = new StringBuilder();
 			String st, identifier = "";
 			String [] result;
 			if (isWikiDat)
-				in.readLine(); // skip first line in wiki.dat (for future use)
+				firstline = in.readLine(); // read first line in wiki.dat
 			int skiplines = 0;
 			while((st = in.readLine()) != null) {
 				if (skiplines > 0) {
@@ -109,6 +112,7 @@ public class WikiFind {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return firstline;//firstline is returned only in case of isWikiDat, otherwise null is returned
 	}
 
 	public static void main(String[] args) {

@@ -32,17 +32,17 @@ import wiki.parserfunctions.ParserFunctions;
 import wiki.MagicWords;
 import wiki.tools.WikiScanner;
 import wiki.tools.WikiPage;
+import static wiki.NameSpaces.getNameSpaceNumber;
+import static wiki.NameSpaces.getNameSpaceByNumber;
 import static wiki.tools.Utilities.deleteAll;
 import static wiki.tools.Utilities.flipTemplateName;
 import static wiki.tools.Utilities.process_include;
 import info.bliki.extensions.scribunto.template.Frame;
+
 /*
 The class TemplateParser implements light wiki template parser.
 */
 final public class TemplateParser {
-
-	private final static String template_label = "Template:";
-	private final static String lc_template_label = template_label.toLowerCase();
 
 //main method parse string, returns evaluated string
 	public String parse(String string, WikiPage wp) {//external
@@ -71,18 +71,21 @@ final public class TemplateParser {
 		while (sh.getSequence("{{")) {
 			int pointer = sh.getPointer(); //save pointer to be ready to retract in case of missing }}
 
-			if (sh.getChar('{')) {
-				if (parameter_holder(sh, sb, wp, parent)) {
-					String str = sh.getStringWithoutOpening();//twin
-					if (str != null)
-						sb.append(str);
-					continue;
-				}
+			if (sh.getSequence("{{")) {//handling cases like {{{{LC:Blabla}} ... }} and  {{{{{1}}} ... }}
+				sh.setPointer(pointer);//retract scanner
+			} else if (sh.getChar('{')) {
+					if (parameter_holder(sh, sb, wp, parent)) {
+						String str = sh.getStringWithoutOpening();//twin
+						if (str != null)
+							sb.append(str);
+						continue;
+					}
 //here we have a pending literal {
-				sh.setPointer(pointer - 1);//partially retract scanner
-				sb.append("{");//save orphan { as literal
-				continue;
+					sh.setPointer(pointer - 1);//partially retract scanner
+					sb.append("{");//save orphan { as literal
+					continue;
 			}
+
 			String p = invocation_body(sh, wp, parent);
 			if (p != null) {
 				sb.append(p);
@@ -129,7 +132,7 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 //magic_word_call ::= magic_word [ ":" magic_parameter]
 //parser_function_call ::= parser_function_name ":" parser_function_parameter { "|" [parser_function_parameter] }*
 //template_call ::= template_identifier { "|" [template_parameter] }*
-		int pointer0 = sh.getPointer(); //save pointer to be ready to retract
+//		int pointer0 = sh.getPointer(); //zzrifletti save pointer to be ready to retract
 
 		String identifier = sh.getStringParameter(null);
 		if (identifier == null)
@@ -140,25 +143,30 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 		}
 		if (identifier.startsWith("subst:")) {//ignore subst:
 			identifier = identifier.substring("subst:".length());
-			pointer0 += "subst:".length();
+//			pointer0 += "subst:".length();zzrifletti
 		}
 		if (identifier.startsWith("safesubst:")) {//ignore safesubst:
 			identifier = identifier.substring("safesubst:".length());
-			pointer0 += "safesubst:".length();
+//			pointer0 += "safesubst:".length();zzrifletti
 		}
-		identifier = parseParameter(identifier, wp, parent);
+//System.out.println(">0>>"+identifier);//zzrifletti
+		identifier = parseParameter(identifier, wp, parent).trim();
 		int pointer = sh.getPointer(); //save pointer to be ready to retract in case of invalid magic word or parser function
 //check & process magic word
 		int idx = identifier.indexOf(":");
 		String name = idx != -1 ? identifier.substring(0, idx) : identifier;
 		MagicWords.MagicWord mw = MagicWords.get(name);
 		if (mw != null)	{
+//System.out.println(">>>"+identifier);//zzrifletti
+//System.out.println("mw>>>"+name);//zzrifletti
 			String parameter = null;
 			if (idx != -1) {//parameter present
-				sh.setPointer(pointer0);//retract scanner at start of identifier
-				sh.moveAfter(":");//move after : to get parameter
+//				sh.setPointer(pointer0);//zzrifletti retract scanner at start of identifier
+//				sh.moveAfter(":");//zzrifletti move after : to get parameter
 
-				String param = sh.getStringParameter(null);
+//				String param = sh.getStringParameter(null);zzrifletti
+				String param = identifier.substring(idx + 1);
+//System.out.println("param>>>"+param);//zzrifletti
 				parameter = param == null ? "" : parseParameter(param, wp, parent).trim();
 
 				while (sh.getChar('|')) {//ignore any further parameter(s)
@@ -167,6 +175,8 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 			}
 			if (sh.getSequence("}}")) {
 				String result = MagicWords.evaluate(mw, parameter, wp.getPagename(), wp.getRevision());
+//System.out.println("parameter>>>"+parameter);//zzrifletti
+//System.out.println("result>>>"+result);//zzrifletti
 				if (result != null)
 					return result;
 				sh.setPointer(pointer);//retract scanner
@@ -176,11 +186,12 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 		ParserFunction pf = ParserFunctions.get(name);
 		if (pf != null)	{
 			if (idx != -1) {//first parameter present
-				sh.setPointer(pointer0);//retract scanner at start of identifier
-				sh.moveAfter(":");//move after : to get parameter
+//				sh.setPointer(pointer0);//zzrifletti retract scanner at start of identifier
+//				sh.moveAfter(":");//zzrifletti move after : to get parameter
 
 				ArrayList<String> parameters = new ArrayList<>();
-				String param = sh.getStringParameter(null);
+//				String param = sh.getStringParameter(null);zzrifletti
+				String param = identifier.substring(idx + 1);
 				parameters.add(param == null ? "" : param.trim());
 
 				while (sh.getChar('|')) {//twin
@@ -196,8 +207,17 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 		}
 		if (!identifier.contains("#")) {
 //check & process template call
-			if (identifier.toLowerCase().startsWith(lc_template_label)) {//TODO: handle also alias and language localizations
-				identifier = identifier.substring(template_label.length());//remove template namespace
+			boolean isTemplate = false;
+			int idx1 = identifier.indexOf(":");
+			if (idx1 != -1) {
+				String ns = identifier.substring(0, idx1);
+				Integer ns_id = getNameSpaceNumber(ns);
+				if (ns_id != null && ns_id == 10)
+					isTemplate = true;
+			}
+
+			if (isTemplate) {
+				identifier = identifier.substring(idx1 + 1);//remove template namespace
 			}
 			int pos = 1;
 			Map<String, String> parameterMap = new LinkedHashMap<>();
@@ -232,25 +252,24 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 
 	public String getParsedTemplate(String identifier, WikiPage wp, Map<String, String> parameterMap, Frame parent) {
 		boolean trace_calls = wp.getTrace_calls();
-
 		while (true) {
 			String parsed_template = null;
 			String template_text = wp.getTemplate(identifier);
 			if (template_text != null) {
 				if (!detect_loop(identifier, parent)) {
 					template_text = process_include(delete_comments(template_text), true).replace("{{{|safesubst:}}}", "");//twin in TestSuite
-					String redirect = getRedirect(template_text);
+					String redirect = wp.getRedirect(template_text);
 					if (redirect != null) {
 						identifier = redirect;
 						continue;
 					}
 
 					if (trace_calls) {
-						System.out.print(template_label + identifier + "(");
+						System.out.print(getNameSpaceByNumber(10) + ":" + identifier + "(");
 						parameterMap.forEach((name, value) -> System.out.print(name + (value.isEmpty() ? "" : " = " + value) + ", "));
 						System.out.println(")");
 					}
-					Frame frame = new Frame(template_label + identifier, parameterMap, parent, false);//frame of this template
+					Frame frame = new Frame(getNameSpaceByNumber(10) + ":" + identifier, parameterMap, parent, false);//frame of this template
 					StringBuilder sb = new StringBuilder();
 					WikiScanner sh = new WikiScanner(delete_comments(template_text));
 					template_body(sh, sb, wp, frame);
@@ -262,7 +281,7 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 			} else {
 				if (trace_calls)
 					System.out.println("Warning: template not found:" + identifier);
-				return "[["+ template_label + identifier + "]]";
+				return "[["+ getNameSpaceByNumber(10) + ":" + identifier + "]]";
 			}
 		}
 	}
@@ -277,21 +296,6 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 			parent = parent.getParent();
 		}
 		return false;
-	}
-
-	public String getRedirect(String template_text) {
-		int ibrac;
-		if (template_text.length() > 9 && template_text.charAt(0) == '#' && ((ibrac = template_text.indexOf("[[")) != -1)) {
-			String checkRedirect = template_text.substring(0, ibrac).toLowerCase();
-			if (checkRedirect.startsWith("#redirect")) {
-				int icolon = template_text.indexOf(":", ibrac);
-				int ebrac = template_text.indexOf("]]", ibrac);
-				if ((ebrac != -1) && (icolon != -1) && (icolon < ebrac)) {
-					return template_text.substring(icolon + 1, ebrac).trim();
-				}
-			}
-		}
-		return null;//no redirect
 	}
 
 	private static String delete_comments(String str) { // delete html comments <!-- -->

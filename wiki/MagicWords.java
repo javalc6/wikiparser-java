@@ -72,6 +72,7 @@ public final class MagicWords {
         filepath,
         fullpagename,
         fullpagenamee,
+		_int_,
 		lc,
 		lcfirst,
         localday,
@@ -152,6 +153,8 @@ public final class MagicWords {
 			return MagicWord._p_i_p_e_;
 		if (name.equals("="))
 			return MagicWord._e_q_u_a_l_;
+		if (name.equals("int"))
+			return MagicWord._int_;
 		try {
 	        return MagicWord.valueOf(name.toLowerCase());			
 		} catch (IllegalArgumentException ex) {
@@ -312,6 +315,8 @@ public final class MagicWords {
                 return "|";
             case _e_q_u_a_l_:
                 return "=";
+            case _int_:
+				return parameter;//todo: implement logic for intFunction as in CoreParserFunctions.php
             default:
                 break;
         }
@@ -344,13 +349,13 @@ public final class MagicWords {
     }
 
     private static String getFullpagename(String parameter, String title) {
-		if (parameter != null && parameter.length() > 0)
+		if (parameter != null && !parameter.isEmpty())
 			return parameter;
 		else return title;
     }
 
     private static String getPagenameHelper(String parameter, String title) {
-        if (parameter != null && parameter.length() > 0)
+        if (parameter != null && !parameter.isEmpty())
 			title = parameter;
         int idx = title.indexOf(':');
         if (idx != -1) {

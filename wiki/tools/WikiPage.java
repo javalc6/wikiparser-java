@@ -26,11 +26,17 @@ package wiki.tools;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 import info.bliki.extensions.scribunto.engine.lua.ScribuntoLuaEngine;
 
 import wiki.TemplateParser;
 
+import wiki.NameSpaces.NameSpace;
+import static wiki.NameSpaces.getNameSpace;
+import static wiki.NameSpaces.getNameSpaceNumber;
+import static wiki.tools.Utilities.getResourceBundle;
+import static wiki.tools.Utilities.getResourceString;
 import static wiki.tools.Utilities.flipTemplateName;
 /*
 This class in an helper for wiki page belonging to main NameSpace
@@ -46,6 +52,7 @@ final public class WikiPage {
 	private final HashMap<String, String> name2content;//optional, may be null
 	private final boolean trace_calls;
 	private final boolean provide_fake_content;
+	private final String redirect_alias;
 
 	private ScribuntoLuaEngine SLE = null;
 
@@ -61,6 +68,21 @@ final public class WikiPage {
 		this.name2content = name2content;
 		this.trace_calls = trace_calls;
 		this.provide_fake_content = provide_fake_content;
+
+		ResourceBundle resourceBundle = getResourceBundle(locale);
+		if (resourceBundle != null)	{
+			String _template = getResourceString(resourceBundle, "template");
+			if (_template != null) {
+				NameSpace template_ns = getNameSpace(10);
+				template_ns.add_alias(_template);
+			}
+			String _module = getResourceString(resourceBundle, "module");
+			if (_module != null) {
+				NameSpace module_ns = getNameSpace(828);
+				module_ns.add_alias(_module);
+			}
+			redirect_alias = getResourceString(resourceBundle, "redirect");
+		} else redirect_alias = null;
 	}
 
 	public String getPagename() {
@@ -98,9 +120,17 @@ final public class WikiPage {
 	}
 
 	public boolean ifExists(String fullpagename) {
-		String lower = fullpagename.toLowerCase();
-		if (lower.startsWith("template:"))
-			return getTemplate(fullpagename.substring("template:".length())) != null;
+		boolean isTemplate = false;
+		int idx = fullpagename.indexOf(":");
+		if (idx != -1) {
+			String ns = fullpagename.substring(0, idx);
+			Integer ns_id = getNameSpaceNumber(ns);
+			if (ns_id != null && ns_id == 10)
+				isTemplate = true;
+		}
+
+		if (isTemplate)
+			return getTemplate(fullpagename.substring(idx + 1)) != null;
 		else return getContent(fullpagename) != null;
 	}
 
@@ -117,6 +147,21 @@ final public class WikiPage {
 		if (content == null && provide_fake_content)//only for test purposes
 			return fullpagename;
 		return content;
+	}
+
+	public String getRedirect(String text) {
+		int ibrac;
+		if (!text.isEmpty() && text.charAt(0) == '#' && ((ibrac = text.indexOf("[[")) != -1)) {
+			String checkRedirect = text.substring(1, ibrac).toLowerCase();
+			if (checkRedirect.startsWith("redirect") || (redirect_alias != null && checkRedirect.startsWith(redirect_alias))) {
+				int icolon = text.indexOf(":", ibrac);
+				int ebrac = text.indexOf("]]", ibrac);
+				if ((ebrac != -1) && (icolon != -1) && (icolon < ebrac)) {
+					return text.substring(icolon + 1, ebrac).trim();
+				}
+			}
+		}
+		return null;//no redirect
 	}
 
     public ScribuntoLuaEngine createScribuntoEngine() {

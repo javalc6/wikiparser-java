@@ -43,7 +43,7 @@ public final class Padleft extends ParserFunction {
 			if (parameters.size() > 1) {
 				int strlen;
 				try {
-					strlen = Integer.parseInt(tp.parseParameter( parameters.get(1), wp, parent));
+					strlen = Integer.parseInt(tp.parseParameter( parameters.get(1), wp, parent).trim());
 					if (strlen >= 0 && (string1.length() < strlen)) {
 						String string2 = parameters.size() > 2 ? tp.parseParameter( parameters.get(2), wp, parent) : null;
 						if (string2 == null || string2.isEmpty())
@@ -58,6 +58,7 @@ public final class Padleft extends ParserFunction {
 						return buffer.toString();
 					}
 				} catch (NumberFormatException e) {
+					e.printStackTrace();
 	//return string1;
 				}
 			}

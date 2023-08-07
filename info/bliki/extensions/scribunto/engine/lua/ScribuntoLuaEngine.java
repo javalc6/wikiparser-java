@@ -53,6 +53,8 @@ import wiki.parserfunctions.ParserFunction;
 import wiki.parserfunctions.ParserFunctions;
 import wiki.MagicWords;
 import wiki.tools.WikiPage;
+import static wiki.NameSpaces.getNameSpaceNumber;
+import static wiki.NameSpaces.getNameSpaceByNumber;
 
 public final class ScribuntoLuaEngine implements MwInterface {
     private static final int MAX_EXPENSIVE_CALLS = 10;
@@ -66,8 +68,6 @@ public final class ScribuntoLuaEngine implements MwInterface {
     private final MwInterface[] interfaces;
 
     private final WikiPage wp;
-
-	private final static String module_label = "Module:";
 
 	private final boolean debug = false;
 
@@ -112,7 +112,7 @@ public final class ScribuntoLuaEngine implements MwInterface {
                 throw new ScribuntoException(e);
             }
         }
-        final Frame frame = new Frame(module_label + moduleName, params, parent, isSubst);
+        final Frame frame = new Frame(getNameSpaceByNumber(828) + ":" + moduleName, params, parent, isSubst);
         final LuaValue function = loadFunction(functionName, prototype, frame);
 
         return executeFunctionChunk(function, frame);
@@ -499,8 +499,17 @@ public final class ScribuntoLuaEngine implements MwInterface {
     }
 
     private InputStream findPackage(String name) throws IOException {
-        if (name.startsWith(module_label)) {//TODO: handle also alias and language localizations
-            return findModule(name.substring(module_label.length()));
+		boolean isModule = false;
+		int idx = name.indexOf(":");
+		if (idx != -1) {
+			String ns = name.substring(0, idx);
+			Integer ns_id = getNameSpaceNumber(ns);
+			if (ns_id != null && ns_id == 828)
+				isModule = true;
+		}
+
+		if (isModule) {
+            return findModule(name.substring(idx + 1));
         } else {
             InputStream is = globals.finder.findResource(name+".lua");
             if (is != null) {
