@@ -132,7 +132,6 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 //magic_word_call ::= magic_word [ ":" magic_parameter]
 //parser_function_call ::= parser_function_name ":" parser_function_parameter { "|" [parser_function_parameter] }*
 //template_call ::= template_identifier { "|" [template_parameter] }*
-//		int pointer0 = sh.getPointer(); //zzrifletti save pointer to be ready to retract
 
 		String identifier = sh.getStringParameter(null);
 		if (identifier == null)
@@ -143,13 +142,10 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 		}
 		if (identifier.startsWith("subst:")) {//ignore subst:
 			identifier = identifier.substring("subst:".length());
-//			pointer0 += "subst:".length();zzrifletti
 		}
 		if (identifier.startsWith("safesubst:")) {//ignore safesubst:
 			identifier = identifier.substring("safesubst:".length());
-//			pointer0 += "safesubst:".length();zzrifletti
 		}
-//System.out.println(">0>>"+identifier);//zzrifletti
 		identifier = parseParameter(identifier, wp, parent).trim();
 		int pointer = sh.getPointer(); //save pointer to be ready to retract in case of invalid magic word or parser function
 //check & process magic word
@@ -157,16 +153,9 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 		String name = idx != -1 ? identifier.substring(0, idx) : identifier;
 		MagicWords.MagicWord mw = MagicWords.get(name);
 		if (mw != null)	{
-//System.out.println(">>>"+identifier);//zzrifletti
-//System.out.println("mw>>>"+name);//zzrifletti
 			String parameter = null;
 			if (idx != -1) {//parameter present
-//				sh.setPointer(pointer0);//zzrifletti retract scanner at start of identifier
-//				sh.moveAfter(":");//zzrifletti move after : to get parameter
-
-//				String param = sh.getStringParameter(null);zzrifletti
 				String param = identifier.substring(idx + 1);
-//System.out.println("param>>>"+param);//zzrifletti
 				parameter = param == null ? "" : parseParameter(param, wp, parent).trim();
 
 				while (sh.getChar('|')) {//ignore any further parameter(s)
@@ -175,8 +164,6 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 			}
 			if (sh.getSequence("}}")) {
 				String result = MagicWords.evaluate(mw, parameter, wp.getPagename(), wp.getRevision());
-//System.out.println("parameter>>>"+parameter);//zzrifletti
-//System.out.println("result>>>"+result);//zzrifletti
 				if (result != null)
 					return result;
 				sh.setPointer(pointer);//retract scanner
@@ -186,11 +173,7 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 		ParserFunction pf = ParserFunctions.get(name);
 		if (pf != null)	{
 			if (idx != -1) {//first parameter present
-//				sh.setPointer(pointer0);//zzrifletti retract scanner at start of identifier
-//				sh.moveAfter(":");//zzrifletti move after : to get parameter
-
 				ArrayList<String> parameters = new ArrayList<>();
-//				String param = sh.getStringParameter(null);zzrifletti
 				String param = identifier.substring(idx + 1);
 				parameters.add(param == null ? "" : param.trim());
 
