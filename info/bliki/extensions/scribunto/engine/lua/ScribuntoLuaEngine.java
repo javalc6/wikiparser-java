@@ -626,6 +626,9 @@ public final class ScribuntoLuaEngine implements MwInterface {
         }
     }
 
+	public void resetEngine() {
+		globals.setmetatable(new LuaTable());//reset globals metatable
+	}
 
     static class LuaResourceFinder implements ResourceFinder {
         private static final String[] LIBRARY_PATH = new String[] {

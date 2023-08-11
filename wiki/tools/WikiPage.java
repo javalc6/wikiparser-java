@@ -55,6 +55,11 @@ final public class WikiPage {
 	private final String redirect_alias;
 
 	private ScribuntoLuaEngine SLE = null;
+/* constant strict_Lua_invocation:
+   false: ScribuntoLuaEngine is not re-created at each #invoke, resulting in faster module execution but may produce inaccurate result
+   true: ScribuntoLuaEngine is re-created at each #invoke, resulting in accurate result but slow module execution
+*/
+	private final boolean strict_Lua_invocation = false;
 
 	public WikiPage(String name, Date rev, Locale locale, TemplateParser tp, 
 		HashMap<String, String> name2template, HashMap<String, String> name2module, 
@@ -165,8 +170,9 @@ final public class WikiPage {
 	}
 
     public ScribuntoLuaEngine createScribuntoEngine() {
-		if (SLE == null)
+		if (SLE == null || strict_Lua_invocation)
 			SLE = new ScribuntoLuaEngine(this);
+		else SLE.resetEngine();//reuse engine by resetting globals metatable
         return SLE;
     }
 
