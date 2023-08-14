@@ -43,6 +43,10 @@ This class in an helper for wiki page belonging to main NameSpace
 */
 
 final public class WikiPage {
+	public final static String PROPERTY_TEMPLATE = "template";
+	public final static String PROPERTY_MODULE = "module";
+	public final static String PROPERTY_REDIRECT = "redirect";
+
 	private final String pagename;
 	private final Date revision;
 	private final Locale locale;
@@ -76,17 +80,17 @@ final public class WikiPage {
 
 		ResourceBundle resourceBundle = getResourceBundle(locale);
 		if (resourceBundle != null)	{
-			String _template = getResourceString(resourceBundle, "template");
+			String _template = getResourceString(resourceBundle, PROPERTY_TEMPLATE);
 			if (_template != null) {
 				NameSpace template_ns = getNameSpace(10);
 				template_ns.add_alias(_template);
 			}
-			String _module = getResourceString(resourceBundle, "module");
+			String _module = getResourceString(resourceBundle, PROPERTY_MODULE);
 			if (_module != null) {
 				NameSpace module_ns = getNameSpace(828);
 				module_ns.add_alias(_module);
 			}
-			redirect_alias = getResourceString(resourceBundle, "redirect");
+			redirect_alias = getResourceString(resourceBundle, PROPERTY_REDIRECT);
 		} else redirect_alias = null;
 	}
 

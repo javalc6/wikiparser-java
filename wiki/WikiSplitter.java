@@ -61,7 +61,7 @@ The following files are generated for information purposes:
 
 compile: javac -encoding UTF-8 wiki\WikiSplitter.java
 
-usage:  java wiki.WikiSplitter <filename>
+usage:  java -Djdk.xml.totalEntitySizeLimit=2147480000 wiki.WikiSplitter <filename>
 
 Note: The constant FilterOtherLanguages can be used to select only the wanted language before generating wiki.dat, but it requires the definition of two properties 'thislanguage' and 'language_pattern' with ad-hoc patterns
 
@@ -77,6 +77,8 @@ public class WikiSplitter {
 
 	private final TreeMap<String, String> name2module = new TreeMap<>();
 	private final TreeMap<String, String> name2template = new TreeMap<>();
+
+	public final static String DBNAME_SUFFIX = "wiktionary";
 
 	public static void main(String[] args) {
 		if (args.length == 1) {
@@ -314,8 +316,8 @@ public class WikiSplitter {
 				buf.setLength(0);
 			} else if (qName.equalsIgnoreCase("dbname")) {
 				String dbname = buf.toString().trim();
-				if (dbname.endsWith("wiktionary")) {
-					String lang = dbname.substring(0, dbname.length() - 10);//10 = "wiktionary".length()
+				if (dbname.endsWith(DBNAME_SUFFIX)) {
+					String lang = dbname.substring(0, dbname.length() - DBNAME_SUFFIX.length());
 
 					if (resourceBundle != null)	{
 						String _thislanguage = getResourceString(resourceBundle, "thislanguage");
@@ -325,12 +327,12 @@ public class WikiSplitter {
 							language_pattern = Pattern.compile(_language_pattern);
 						}
 
-						String _template = getResourceString(resourceBundle, "template");
+						String _template = getResourceString(resourceBundle, wiki.tools.WikiPage.PROPERTY_TEMPLATE);
 						if (_template != null) {
 							NameSpace template_ns = getNameSpace(10);
 							template_ns.add_alias(_template);
 						}
-						String _module = getResourceString(resourceBundle, "module");
+						String _module = getResourceString(resourceBundle, wiki.tools.WikiPage.PROPERTY_MODULE);
 						if (_module != null) {
 							NameSpace module_ns = getNameSpace(828);
 							module_ns.add_alias(_module);
