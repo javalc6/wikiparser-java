@@ -38,15 +38,14 @@ import static wiki.NameSpaces.getNameSpaceNumber;
 import static wiki.tools.Utilities.getResourceBundle;
 import static wiki.tools.Utilities.getResourceString;
 import static wiki.tools.Utilities.flipTemplateName;
+import static wiki.tools.Utilities.PROPERTY_MODULE;
+import static wiki.tools.Utilities.PROPERTY_REDIRECT;
+import static wiki.tools.Utilities.PROPERTY_TEMPLATE;
 /*
 This class in an helper for wiki page belonging to main NameSpace
 */
 
 final public class WikiPage {
-	public final static String PROPERTY_TEMPLATE = "template";
-	public final static String PROPERTY_MODULE = "module";
-	public final static String PROPERTY_REDIRECT = "redirect";
-
 	private final String pagename;
 	private final Date revision;
 	private final Locale locale;

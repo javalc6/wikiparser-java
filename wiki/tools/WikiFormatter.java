@@ -31,6 +31,7 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import static wiki.tools.Utilities.delete_comments;
 import static wiki.tools.Utilities.getLanguageNames;
 
 final public class WikiFormatter {
@@ -39,6 +40,7 @@ final public class WikiFormatter {
 	final static HashMap<String, String> code2language = getLanguageNames();
 
     public static String formatWikiText(StringBuilder lemma, StringBuilder wikitext, String linkBaseURL, String language) {
+		delete_comments(wikitext);
 		StringBuilder result = new StringBuilder(wikitext.length());
 		StringBuilder buf = new StringBuilder(128);
 		StringBuilder old_list = new StringBuilder();
@@ -74,10 +76,10 @@ final public class WikiFormatter {
 
 			String st;
 			if (eol == -1) {
-				st = wikitext.substring(idx);
+				st = wikitext.substring(idx).trim();
 				idx = blen;
 			} else {
-				st = wikitext.substring(idx, eol);
+				st = wikitext.substring(idx, eol).trim();
 				idx = eol + 1;
 			}
 			if (!st.isEmpty()) {
@@ -338,7 +340,7 @@ final public class WikiFormatter {
 						while (k > 0 && st.charAt(k) == '=')
 							k--;
 						if (k > 0 && k < len - 1) {
-							int j = 2;
+							int j = 1;
 							while (j < len && st.charAt(j) == '=')
 								j++;
 							int level = Math.min(j, len - 1 - k); 

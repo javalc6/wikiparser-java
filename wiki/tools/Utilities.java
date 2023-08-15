@@ -38,6 +38,9 @@ import java.util.TimeZone;
   This class contains miscellaneous utility functions
 */
 final public class Utilities {
+	public final static String PROPERTY_TEMPLATE = "template";
+	public final static String PROPERTY_MODULE = "module";
+	public final static String PROPERTY_REDIRECT = "redirect";
 
 	private static HashMap<String, String> code2language;
 
@@ -208,22 +211,22 @@ final public class Utilities {
 		return formatter.format(date);
 	}
 
-	private static void delete_comments(StringBuilder text) { // delete html comments <!-- -->
-		int comment = text.indexOf("<!--");// find html comments <!-- -->
-		while (comment != -1) {
+	public static void delete_comments(StringBuilder text) { // delete html comments <!-- -->
+		int comment;
+		while ((comment = text.indexOf("<!--")) != -1) {// find html comments <!-- -->
 			int eoc = text.indexOf("-->", comment + 3);
 			if (eoc != -1) {
 				text.delete(comment, eoc + 3);
 				if ((comment > 0) && (text.charAt(comment - 1)  == '\n') && (comment < text.length()) && (text.charAt(comment)  == '\n')) {//rimuove l'eventuale riga vuota in caso di eliminazione del commento
 					text.deleteCharAt(comment);
 				}
-				comment = text.indexOf("<!--");
 			} else {
 				text.setLength(comment);
 				break;
 			}
 		}
 	}
+
 
 /*
 This method processes include tags according to https://en.wikipedia.org/wiki/Help:Template#Noinclude,_includeonly,_and_onlyinclude

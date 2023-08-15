@@ -47,6 +47,8 @@ import static wiki.NameSpaces.getNameSpace;
 import static wiki.NameSpaces.getNameSpaceNumber;
 import static wiki.tools.Utilities.getResourceBundle;
 import static wiki.tools.Utilities.getResourceString;
+import static wiki.tools.Utilities.PROPERTY_MODULE;
+import static wiki.tools.Utilities.PROPERTY_TEMPLATE;
 /*
 Wiktionary splitter: this standalone tool splits the xml file wiktionary downloaded from https://dumps.wikimedia.org/enwiktionary/latest/
 
@@ -327,12 +329,12 @@ public class WikiSplitter {
 							language_pattern = Pattern.compile(_language_pattern);
 						}
 
-						String _template = getResourceString(resourceBundle, wiki.tools.WikiPage.PROPERTY_TEMPLATE);
+						String _template = getResourceString(resourceBundle, PROPERTY_TEMPLATE);
 						if (_template != null) {
 							NameSpace template_ns = getNameSpace(10);
 							template_ns.add_alias(_template);
 						}
-						String _module = getResourceString(resourceBundle, wiki.tools.WikiPage.PROPERTY_MODULE);
+						String _module = getResourceString(resourceBundle, PROPERTY_MODULE);
 						if (_module != null) {
 							NameSpace module_ns = getNameSpace(828);
 							module_ns.add_alias(_module);
