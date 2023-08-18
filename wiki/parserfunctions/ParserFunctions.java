@@ -66,5 +66,9 @@ public final class ParserFunctions {
 		return parserFunctionMap.get(name.toLowerCase());
     }
 
+    public static ParserFunction put(String name, ParserFunction pf) {
+		return parserFunctionMap.put(name.toLowerCase(), pf);
+    }
+
 
 }

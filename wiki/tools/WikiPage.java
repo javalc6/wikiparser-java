@@ -33,6 +33,7 @@ import info.bliki.extensions.scribunto.engine.lua.ScribuntoLuaEngine;
 import wiki.TemplateParser;
 
 import wiki.NameSpaces.NameSpace;
+import wiki.parserfunctions.ParserFunctions;
 import static wiki.NameSpaces.getNameSpace;
 import static wiki.NameSpaces.getNameSpaceNumber;
 import static wiki.tools.Utilities.getResourceBundle;
@@ -41,6 +42,11 @@ import static wiki.tools.Utilities.flipTemplateName;
 import static wiki.tools.Utilities.PROPERTY_MODULE;
 import static wiki.tools.Utilities.PROPERTY_REDIRECT;
 import static wiki.tools.Utilities.PROPERTY_TEMPLATE;
+import static wiki.tools.Utilities.PROPERTY_PARSER_IF;
+import static wiki.tools.Utilities.PROPERTY_PARSER_IFERROR;
+import static wiki.tools.Utilities.PROPERTY_PARSER_IFEXIST;
+import static wiki.tools.Utilities.PROPERTY_PARSER_IFEXPR;
+import static wiki.tools.Utilities.PROPERTY_PARSER_IFEQ;
 /*
 This class in an helper for wiki page belonging to main NameSpace
 */
@@ -90,6 +96,27 @@ final public class WikiPage {
 				module_ns.add_alias(_module);
 			}
 			redirect_alias = getResourceString(resourceBundle, PROPERTY_REDIRECT);
+
+			String parserIf = getResourceString(resourceBundle, PROPERTY_PARSER_IF);
+			if (parserIf != null) { 
+				ParserFunctions.put(parserIf, wiki.parserfunctions.If.Instance);
+			}
+			String parserIferror = getResourceString(resourceBundle, PROPERTY_PARSER_IFERROR);
+			if (parserIferror != null) { 
+				ParserFunctions.put(parserIferror, wiki.parserfunctions.Iferror.Instance);
+			}
+			String parserIfexist = getResourceString(resourceBundle, PROPERTY_PARSER_IFEXIST);
+			if (parserIfexist != null) { 
+				ParserFunctions.put(parserIfexist, wiki.parserfunctions.Ifexist.Instance);
+			}
+			String parserIfexpr = getResourceString(resourceBundle, PROPERTY_PARSER_IFEXPR);
+			if (parserIfexpr != null) { 
+				ParserFunctions.put(parserIfexpr, wiki.parserfunctions.Ifexpr.Instance);
+			}
+			String parserIfeq = getResourceString(resourceBundle, PROPERTY_PARSER_IFEQ);
+			if (parserIfeq != null) { 
+				ParserFunctions.put(parserIfeq, wiki.parserfunctions.Ifeq.Instance);
+			}
 		} else redirect_alias = null;
 	}
 

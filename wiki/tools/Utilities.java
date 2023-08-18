@@ -41,6 +41,12 @@ final public class Utilities {
 	public final static String PROPERTY_TEMPLATE = "template";
 	public final static String PROPERTY_MODULE = "module";
 	public final static String PROPERTY_REDIRECT = "redirect";
+	public final static String PROPERTY_PARSER_IF = "parser.if";
+	public final static String PROPERTY_PARSER_IFERROR = "parser.iferror";
+	public final static String PROPERTY_PARSER_IFEXIST = "parser.ifexist";
+	public final static String PROPERTY_PARSER_IFEXPR = "parser.ifexpr";
+	public final static String PROPERTY_PARSER_IFEQ = "parser.ifeq";
+
 
 	private static HashMap<String, String> code2language;
 
