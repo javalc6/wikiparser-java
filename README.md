@@ -99,6 +99,11 @@ The following optional properties may be defined in localization files:
 - ``module``: localized label for Module
 - ``template``: localized label for Template
 - ``redirect``: localized label for Redirect
+- ``parser.if``: alias for #if
+- ``parser.iferror``: alias for #iferror
+- ``parser.ifexist``: alias for #ifexist
+- ``parser.ifexpr``: alias for #ifexpr
+- ``parser.ifeq``: alias for #ifeq
 
 # Credits
 This software integrates 3pp software to perform specific activities.
