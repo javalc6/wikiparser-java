@@ -187,8 +187,8 @@ final public class WikiPage {
 	public String getRedirect(String text) {
 		int ibrac;
 		if (!text.isEmpty() && text.charAt(0) == '#' && ((ibrac = text.indexOf("[[")) != -1)) {
-			String checkRedirect = text.substring(1, ibrac).toLowerCase();
-			if (checkRedirect.startsWith("redirect") || (redirect_alias != null && checkRedirect.startsWith(redirect_alias))) {
+			String checkRedirect = text.substring(1, ibrac).trim();
+			if (checkRedirect.equalsIgnoreCase("redirect") || (redirect_alias != null && checkRedirect.equalsIgnoreCase(redirect_alias))) {
 				int icolon = text.indexOf(":", ibrac);
 				int ebrac = text.indexOf("]]", ibrac);
 				if ((ebrac != -1) && (icolon != -1) && (icolon < ebrac)) {
