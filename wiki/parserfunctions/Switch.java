@@ -40,7 +40,7 @@ public final class Switch extends ParserFunction {
 	public String evaluate(WikiPage wp, ArrayList<String> parameters, Frame parent) {
         if (parameters.size() > 1) {
 			TemplateParser tp = wp.getTemplateParser();
-			String comparison = tp.parseParameter( parameters.get(0), wp, parent);
+			String comparison = tp.parseParameter( parameters.get(0), wp, parent).trim();
 			String defaultResult = "";
 			boolean fallthrough = false;
 			for (int i = 1; i < parameters.size(); i++) {

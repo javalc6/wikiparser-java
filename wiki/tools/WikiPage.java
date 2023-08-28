@@ -188,6 +188,8 @@ final public class WikiPage {
 		int ibrac;
 		if (!text.isEmpty() && text.charAt(0) == '#' && ((ibrac = text.indexOf("[[")) != -1)) {
 			String checkRedirect = text.substring(1, ibrac).trim();
+			if (checkRedirect.endsWith(":"))
+				checkRedirect = checkRedirect.substring(0, checkRedirect.length() - 1);
 			if (checkRedirect.equalsIgnoreCase("redirect") || (redirect_alias != null && checkRedirect.equalsIgnoreCase(redirect_alias))) {
 				int icolon = text.indexOf(":", ibrac);
 				int ebrac = text.indexOf("]]", ibrac);

@@ -267,8 +267,7 @@ Note:
         while (idx < sb.length()) {
             idx = sb.indexOf(what, idx);
             if (idx != -1)	{
-                sb.replace(idx, idx+what.length(), "");
-                "".length();
+                sb.replace(idx, idx + what.length(), "");
             } else break;
         }
     }
@@ -278,7 +277,7 @@ Note:
         while (idx < sb.length()) {
             idx = sb.indexOf(what, idx);
             if (idx != -1)	{
-                sb.replace(idx, idx+what.length(), replacement);
+                sb.replace(idx, idx + what.length(), replacement);
                 idx += replacement.length();
             } else break;
         }

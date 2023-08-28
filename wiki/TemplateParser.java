@@ -88,6 +88,9 @@ final public class TemplateParser {
 
 			String p = invocation_body(sh, wp, parent);
 			if (p != null) {
+				if (p.startsWith("{|") || p.startsWith(":") || p.startsWith(";") || p.startsWith("*") || p.startsWith("#")) {
+					sb.append("\n");//workaround01 - needed for correct handling of lemma Haus in german wiktionary
+				}
 				sb.append(p);
 			} else {
 				sh.setPointer(pointer);//retract scanner
