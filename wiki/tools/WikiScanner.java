@@ -200,19 +200,6 @@ final public class WikiScanner {
 		return null;			
 	}
 
-	public String getIdentifierOrNumber() {//returns identifier or number, if present at current position
-		while ((pointer < str.length()) && isWikiSpace(str.charAt(pointer)))
-			pointer++;
-		StringBuilder sb = new StringBuilder();
-		char ch;
-		while ((pointer < str.length()) && (Character.isLetter(ch = str.charAt(pointer)) || Character.isDigit(ch) || ("/-_ ".indexOf(ch) != -1))) {
-			sb.append(ch); pointer++;
-		}
-		if (sb.length() > 0)
-			return sb.toString();
-		return null;
-	}
-
 	public boolean moveAfter(String marker) {//moves after marker, if present returns true, otherwise does not move and returns false
 		int idx = str.indexOf(marker, pointer);
 		if (idx != -1) {

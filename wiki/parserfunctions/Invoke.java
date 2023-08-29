@@ -57,13 +57,13 @@ public final class Invoke extends ParserFunction {
 			Map<String, String> parameterMap = new LinkedHashMap<>();//skip first two parameter (module and function names)
 			int pos = 1;
 			for (int i = 2; i < parameters.size(); i++) {
-				String param = tp.parseParameter( parameters.get(i), wp, parent);
+				String param = parameters.get(i);
 				int idx = findValidEqualSign(param);
 //System.out.println("i=" + i + ", parameter splitting: " + param + ", idx= " + idx);
 				if (idx != -1) {
-					parameterMap.put(param.substring(0, idx).trim(), param.substring(idx + 1).trim());
+					parameterMap.put(param.substring(0, idx).trim(), tp.parseParameter( param.substring(idx + 1), wp, parent).trim());
 				} else {
-					parameterMap.put(Integer.toString(pos++), param);//unnamed parameter
+					parameterMap.put(Integer.toString(pos++), tp.parseParameter( param, wp, parent));//unnamed parameter
 				}
 			}
 			if (trace_calls)

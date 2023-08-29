@@ -252,6 +252,16 @@ public final class ScribuntoLuaEngine implements MwInterface {
                 return id;//fake
             }
         });
+        wikibase.set("getGlobalSiteId", new OneArgFunction() {
+            @Override public LuaValue call(LuaValue id) {
+                return NIL;//fake
+            }
+        });
+        wikibase.set("isValidEntityId", new OneArgFunction() {
+            @Override public LuaValue call(LuaValue id) {
+                return FALSE;//fake
+            }
+        });
         mw.set("wikibase", wikibase);
     }
 

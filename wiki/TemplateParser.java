@@ -109,7 +109,7 @@ Important: if param_name is not defined, then
 {{{param_name|}}} --> (empty string)
 reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 */
-		String param_name = sh.getStringParameter(null);//sh.getIdentifierOrNumber();
+		String param_name = sh.getStringParameter(null);
 		String result = null;
 		if (param_name != null) {
 			param_name = parseParameter(param_name, wp, parent);
