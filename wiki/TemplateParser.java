@@ -238,38 +238,32 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 
 	public String getParsedTemplate(String identifier, WikiPage wp, Map<String, String> parameterMap, Frame parent) {
 		boolean trace_calls = wp.getTrace_calls();
-		while (true) {
-			String parsed_template = null;
+		while (!detect_loop(identifier, parent)) {
 			String template_text = wp.getTemplate(identifier);
-			if (template_text != null) {
-				if (!detect_loop(identifier, parent)) {
-					template_text = process_include(delete_comments(template_text), true).replace("{{{|safesubst:}}}", "");//twin in TestSuite
-					String redirect = wp.getRedirect(template_text);
-					if (redirect != null) {
-						identifier = redirect;
-						continue;
-					}
-
-					if (trace_calls) {
-						System.out.print(getNameSpaceByNumber(10) + ":" + identifier + "(");
-						parameterMap.forEach((name, value) -> System.out.print(name + (value.isEmpty() ? "" : " = " + value) + ", "));
-						System.out.println(")");
-					}
-					Frame frame = new Frame(getNameSpaceByNumber(10) + ":" + identifier, parameterMap, parent, false);//frame of this template
-					StringBuilder sb = new StringBuilder();
-					WikiScanner sh = new WikiScanner(delete_comments(template_text));
-					template_body(sh, sb, wp, frame);
-					parsed_template = sb.toString();
-				}
-			}
-			if (parsed_template != null) {
-				return parsed_template;
-			} else {
+			if (template_text == null) {
 				if (trace_calls)
 					System.out.println("Warning: template not found:" + identifier);
 				return "[["+ getNameSpaceByNumber(10) + ":" + identifier + "]]";
 			}
+			template_text = process_include(delete_comments(template_text), true).replace("{{{|safesubst:}}}", "");//twin in TestSuite
+			String redirect = wp.getRedirect(template_text);
+			if (redirect == null) {
+				if (trace_calls) {
+					System.out.print(getNameSpaceByNumber(10) + ":" + identifier + "(");
+					parameterMap.forEach((name, value) -> System.out.print(name + (value.isEmpty() ? "" : " = " + value) + ", "));
+					System.out.println(")");
+				}
+				Frame frame = new Frame(getNameSpaceByNumber(10) + ":" + identifier, parameterMap, parent, false);//frame of this template
+				StringBuilder sb = new StringBuilder();
+				WikiScanner sh = new WikiScanner(delete_comments(template_text));
+				template_body(sh, sb, wp, frame);
+				return sb.toString();
+			}
+			identifier = redirect;
 		}
+		if (trace_calls)
+			System.out.println("Warning: loop detected:" + identifier);
+		return "Template loop detected: [["+ getNameSpaceByNumber(10) + ":" + identifier + "]]";
 	}
 
 	private boolean detect_loop(String identifier, Frame parent) {

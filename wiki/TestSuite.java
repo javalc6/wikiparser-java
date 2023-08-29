@@ -101,6 +101,7 @@ final public class TestSuite {
 		putItem(name2template, "Loop2", "{{loop}}");
 		putItem(name2template, "echo", "{{{1|default}}}");
 		putItem(name2template, "compose3", "{{{1}}}{{{2}}}{{{3}}}");
+		putItem(name2template, "TEx3", "{{{1}}}{{{2}}}{{{3}}} ({{{x}}})");
 		putItem(name2template, "nested", "{{echo|{{echo|{{echo|{{{p}}}}}{{{q}}}}}{{{r}}}}}");
 		putItem(name2template, "checkparam", "{{#if:{{{1|}}}|Text in param|No text in param}}");
 		putItem(name2template, "checknamedparam", "{{#if:{{{lang|}}}|check deprecated lang param usage|no deprecated lang param usage}}");
@@ -185,7 +186,7 @@ final public class TestSuite {
 		testEvaluate(tp, "{{#iferror: {{#expr: 1 + 2 }} | error | correct }}", wp, "correct");
 		testEvaluate(tp, "{{#iferror: {{#expr: 1 + X }} | error | correct }}", wp, "error");
 		testEvaluate(tp, "{{asitis}}", wp, "asitis");
-		testEvaluate(tp, "{{loop}}", wp, "[[Template:loop]]");
+		testEvaluate(tp, "{{loop}}", wp, "Template loop detected: [[Template:loop]]");
 		testEvaluate(tp, "{{echo|alfa}}", wp, "alfa");
 		testEvaluate(tp, "{{echo| alfa }}", wp, " alfa ");
 		testEvaluate(tp, "{{echo}}", wp, "default");
@@ -194,6 +195,7 @@ final public class TestSuite {
 		testEvaluate(tp, "{{echo|a<!--=-->b}}", wp, "ab");
 		testEvaluate(tp, "{{echo|[[ab|cd]]}}", wp, "[[ab|cd]]");
 		testEvaluate(tp, "a{{ compose3 | alfa | beta | gamma }}b", wp, "a alfa  beta  gamma b");
+//		testEvaluate(tp, "{{ TEx3 | A | B | C | x = C }}", wp, "A B C (C)");
 		testEvaluate(tp, "{{subst:temPLAte:echo|alfa}}", wp, "alfa");
 		testEvaluate(tp, "{{nested|r={{echo|c}}|q={{echo|b}}|p={{subst:temPLAte:echo|a}}}}", wp, "abc");
 		testEvaluate(tp, "{{checkparam}}", wp, "No text in param");
