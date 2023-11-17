@@ -163,12 +163,14 @@ final public class Utilities {
 
 
     public static boolean checkInteger(String str) {//check that string str is an unsigned integer number
+		int n_digits = 0;
         for (char c : str.trim().toCharArray()) {
             if (!Character.isDigit(c)) {
                 return false;
             }
+			n_digits++;
         }
-        return true;
+        return n_digits > 0;
     }
 
     public static String flipTemplateName(String s) {//change the initial letter from upper to lower or viceversa

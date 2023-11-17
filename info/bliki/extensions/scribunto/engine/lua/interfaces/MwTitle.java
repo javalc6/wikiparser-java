@@ -14,6 +14,7 @@ import static info.bliki.extensions.scribunto.template.Frame.toLuaString;
 import static org.luaj.vm2.LuaValue.EMPTYSTRING;
 
 // https://github.com/wikimedia/mediawiki-extensions-Scribunto/blob/master/includes/Engines/LuaCommon/TitleLibrary.php
+// title structure: [interwiki:][namespace:]pagename[#fragment]
 public class MwTitle implements MwInterface {
     private final WikiPage wp;
 
@@ -117,7 +118,8 @@ public class MwTitle implements MwInterface {
              * The page will be recorded as a transclusion.
              */
             @Override public LuaValue call(LuaValue page) {
-                return toLuaString(wp.getContent(page.tojstring()));
+				String content = wp.getContent(page.tojstring());
+                return content == null ? EMPTYSTRING : toLuaString(content);
             }
         };
     }
@@ -138,16 +140,26 @@ public class MwTitle implements MwInterface {
                     return NIL;
                 } else if (text_or_id.isstring()) {
                     if (isValidTitle(text_or_id, defaultNamespace)) {
+						String text = text_or_id.checkjstring();
+						String interwiki = null;
+						int idx = text.indexOf(":");
+						if (idx != -1) {
+							String prefix = text.substring(0, idx);
+							if (prefix.equals("w") || prefix.equals("wikipedia") || prefix.equals("wikt") || prefix.equals("wiktionary"))//to be extended with more interwikis
+								interwiki = prefix;
+						}
+						int fragment_idx = text.indexOf("#");
                         return title(
                             defaultNamespace,
                             text_or_id,
-                            toLuaString("fragment"),
-                            toLuaString("interwiki"));
+                            fragment_idx == -1 ? NIL : toLuaString(text.substring(fragment_idx + 1)),
+                            interwiki == null ? NIL : toLuaString(interwiki));
                     } else {
                         return NIL;
                     }
                 } else {
-                   return NIL;
+//					System.out.println("text_or_id is not a number/string: "+text_or_id);
+					return NIL;
                 }
             }
         };
