@@ -91,6 +91,8 @@ This wiki parser is simplified and light, but has several limitations.
 It does not aim to achieve 100% features of php based wiki parser and it is designed for the wiktionary.
 The parser is not optimized for speed.
 
+Warning: the constant ``strict_Lua_invocation`` in class WikiPage is set to ``false`` for speed, but in order to get accurate results the value shall be set to ``true``.
+
 # Localization
 Language localization is supported by defining properties file in the ``wiki`` folder with filename wiktionary_\<language code\>.properties
 
