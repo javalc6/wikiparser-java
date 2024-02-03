@@ -638,6 +638,21 @@ public final class ScribuntoLuaEngine implements MwInterface {
 
 	public void resetEngine() {
 		globals.setmetatable(new LuaTable());//reset globals metatable
+//unload wiki modules
+		final LuaTable packagee = globals.get("package").checktable();
+        final LuaTable loaded = packagee.get("loaded").checktable();
+        LuaValue key = LuaValue.NIL;
+        while (true) {
+            Varargs next = loaded.next(key);
+            if ((key = next.arg1()).isnil())
+                break;
+            LuaValue value = next.arg(2);
+			if (key.checkjstring().startsWith("Module:"))
+				loaded.set(key, LuaValue.NIL);//unload module
+        }		
+		
+		childFrames.clear();
+//		compileCache.clear();
 	}
 
     static class LuaResourceFinder implements ResourceFinder {
