@@ -297,6 +297,7 @@ public final class ScribuntoLuaEngine implements MwInterface {
         table.set("preprocess", preprocess());
         table.set("incrementExpensiveFunctionCount", incrementExpensiveFunctionCount());
         table.set("isSubsting", isSubsting());
+        table.set("addWarning", addWarning());
         return table;
     }
 
@@ -357,6 +358,14 @@ public final class ScribuntoLuaEngine implements MwInterface {
                 if (++expensiveFunctionCount > MAX_EXPENSIVE_CALLS) {
                     error("too many expensive function calls");
                 }
+                return NIL;
+            }
+        };
+    }
+
+    private OneArgFunction addWarning() {
+        return new OneArgFunction() {
+            @Override public LuaValue call(LuaValue packageName) {
                 return NIL;
             }
         };

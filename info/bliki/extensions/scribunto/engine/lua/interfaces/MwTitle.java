@@ -2,12 +2,15 @@ package info.bliki.extensions.scribunto.engine.lua.interfaces;
 
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.LuaInteger;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.LibFunction;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.TwoArgFunction;
 
 import wiki.tools.WikiPage;
+import static wiki.NameSpaces.getNameSpaceByNumber;
+import static wiki.NameSpaces.getNameSpaceNumber;
 
 import static info.bliki.extensions.scribunto.template.Frame.toLuaString;
 
@@ -45,7 +48,7 @@ public class MwTitle implements MwInterface {
     @Override
     public LuaValue getSetupOptions() {
         LuaTable table = new LuaTable();
-        table.set("thisTitle", title("", wp.getPagename()));
+        table.set("thisTitle", title(LuaValue.valueOf(0), toLuaString(wp.getPagename()), LuaValue.NIL, LuaValue.NIL));
         table.set("NS_MEDIA", -2);
         return table;
     }
@@ -142,16 +145,18 @@ public class MwTitle implements MwInterface {
                     if (isValidTitle(text_or_id, defaultNamespace)) {
 						String text = text_or_id.checkjstring();
 						String interwiki = null;
+						Integer ns_id = null;
 						int idx = text.indexOf(":");
 						if (idx != -1) {
 							String prefix = text.substring(0, idx);
 							if (prefix.equals("w") || prefix.equals("wikipedia") || prefix.equals("wikt") || prefix.equals("wiktionary"))//to be extended with more interwikis
 								interwiki = prefix;
+							else ns_id = getNameSpaceNumber(prefix);//ns_id != null in case prefix is namespace
 						}
 						int fragment_idx = text.indexOf("#");
                         return title(
-                            defaultNamespace,
-                            text_or_id,
+                            ns_id == null ? defaultNamespace : LuaInteger.valueOf(ns_id),
+                            ns_id == null ? text_or_id : toLuaString(text.substring(idx + 1)),
                             fragment_idx == -1 ? NIL : toLuaString(text.substring(fragment_idx + 1)),
                             interwiki == null ? NIL : toLuaString(interwiki));
                     } else {
@@ -202,24 +207,14 @@ public class MwTitle implements MwInterface {
         };
     }
 
-
-    private LuaValue title(String namespace, String pageName) {
-        return title(
-                toLuaString(namespace != null ? namespace : ""),
-                toLuaString(pageName != null ? pageName : ""),
-                LuaValue.NIL,
-                LuaValue.NIL
-        );
-    }
-
     private LuaValue title(LuaValue ns, LuaValue title, LuaValue fragment, LuaValue interwiki) {
         LuaTable table = new LuaTable();
         table.set("isLocal", EMPTYSTRING);
         table.set("isRedirect", EMPTYSTRING);
         table.set("subjectNsText", EMPTYSTRING);
         table.set("interwiki", interwiki.isnil() ? EMPTYSTRING : interwiki);
-        table.set("namespace", LuaValue.valueOf(0));
-        table.set("nsText", ns.isnil() ? LuaValue.EMPTYSTRING : ns);
+        table.set("namespace", ns.isnil() ? LuaValue.valueOf(0) : ns);
+        table.set("nsText", ns.isnil() ? LuaValue.EMPTYSTRING : toLuaString(getNameSpaceByNumber(ns.checkint())));
         table.set("text", title);
         table.set("id", title);
         table.set("fragment", fragment.isnil() ? EMPTYSTRING : fragment);
@@ -227,7 +222,6 @@ public class MwTitle implements MwInterface {
         table.set("thePartialUrl", EMPTYSTRING);
         table.set("exists", LuaValue.TRUE);
 		
-
         return table;
     }
 }

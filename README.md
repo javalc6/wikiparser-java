@@ -7,6 +7,8 @@ Main software is written in Java and uses LUA modules from Wikimedia.
 
 The library has been developed to parse and render English Wiktionary, starting from the dump **enwiktionary-latest-pages-articles.xml.bz2** available in https://dumps.wikimedia.org/enwiktionary/latest/
 
+In addition to English, several other languages are supported, as described below in section ``Localization``.
+
 As an example of a wiktionary definition parsed by ``TemplateParser`` and rendered by ``WikiFormatter``, please look at [time](wiki.html) definition.
 
 # WikiSplitter
@@ -107,6 +109,21 @@ The following optional properties may be defined in localization files:
 - ``parser.ifexpr``: alias for #ifexpr
 - ``parser.ifeq``: alias for #ifeq
 
+Following languages are supported in the current implementation:
+- ``Arab``
+- ``Dutch``
+- ``English`` (default)
+- ``French``
+- ``German``
+- ``Greek``
+- ``Italian``
+- ``Latin``
+- ``Portuguese``
+- ``Romanian``
+- ``Russian``
+- ``Spanish``
+- ``Turkish``
+  
 # Credits
 This software integrates 3pp software to perform specific activities.
 The following 3pp are used by this software:
