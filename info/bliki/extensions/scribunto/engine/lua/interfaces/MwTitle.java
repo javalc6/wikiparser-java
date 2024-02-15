@@ -208,13 +208,15 @@ public class MwTitle implements MwInterface {
     }
 
     private LuaValue title(LuaValue ns, LuaValue title, LuaValue fragment, LuaValue interwiki) {
+		if (ns.isnil() || !ns.isint())
+			ns = LuaValue.valueOf(0);
         LuaTable table = new LuaTable();
         table.set("isLocal", EMPTYSTRING);
         table.set("isRedirect", EMPTYSTRING);
         table.set("subjectNsText", EMPTYSTRING);
         table.set("interwiki", interwiki.isnil() ? EMPTYSTRING : interwiki);
-        table.set("namespace", ns.isnil() ? LuaValue.valueOf(0) : ns);
-        table.set("nsText", ns.isnil() ? LuaValue.EMPTYSTRING : toLuaString(getNameSpaceByNumber(ns.checkint())));
+        table.set("namespace", ns);
+        table.set("nsText", toLuaString(getNameSpaceByNumber(ns.checkint())));
         table.set("text", title);
         table.set("id", title);
         table.set("fragment", fragment.isnil() ? EMPTYSTRING : fragment);

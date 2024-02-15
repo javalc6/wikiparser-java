@@ -613,6 +613,11 @@ public final class ScribuntoLuaEngine implements MwInterface {
                 }
             }
         });
+
+        // string.gfind was renamed to gmatch in 5.2
+		LuaValue string = globals.get("string");
+        string.set("gfind", string.get("gmatch"));
+
     }
 
     public static LuaString toLuaString(String string) {
