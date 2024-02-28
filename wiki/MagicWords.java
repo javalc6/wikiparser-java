@@ -23,15 +23,25 @@ DO NOT USE THIS SOFTWARE IF YOU DON'T AGREE WITH STATED CONDITIONS.
 */
 package wiki;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.net.URLEncoder;
 import java.util.Date;
+import java.util.LinkedHashMap;
+
+import json.JSONException;
+import json.JSONObject;
+import json.JSONValue;
 
 import static wiki.NameSpaces.getNameSpaceNumber;
 import static wiki.NameSpaces.getNameSpaceByNumber;
 import static wiki.tools.Utilities.dateFormatter;
 import static wiki.tools.Utilities.normaliseTitle;
 import static wiki.tools.Utilities.encodeUrl;
+import wiki.tools.WikiPage;
 
 /* references:
 https://www.mediawiki.org/wiki/Help:Magic_word
@@ -162,7 +172,9 @@ public final class MagicWords {
 		}
     }
 
-    public static String evaluate(MagicWord magicWord, String parameter, String title, Date revision) {//note: revision is nullable
+    public static String evaluate(MagicWord magicWord, String parameter, WikiPage wp) {
+		String title = wp.getPagename();
+		Date revision = wp.getRevision();//note: revision is nullable
         switch (magicWord) {
             case anchorencode:
 	            if (parameter != null) {
@@ -316,13 +328,42 @@ public final class MagicWords {
             case _e_q_u_a_l_:
                 return "=";
             case _int_:
-				return parameter;//todo: implement logic for intFunction as in CoreParserFunctions.php
+				if (mw_localization == null) {
+					String lang = wp.getLocale().getLanguage();
+					String filename = "wiki\\" + lang + ".json";//localization files can be downloaded from: https://gerrit.wikimedia.org/g/mediawiki/core/%2B/HEAD/languages/i18n
+					try {
+						LineNumberReader in = new LineNumberReader(new InputStreamReader(new FileInputStream(filename), "UTF-8"));
+						String st;
+						StringBuilder sb = new StringBuilder();
+						while ((st = in.readLine()) != null) {
+							sb.append(st).append('\n');
+						}
+						in.close();
+						JSONValue result = JSONValue.parse(sb.toString());
+						if (result instanceof JSONObject) {
+							mw_localization = (LinkedHashMap<String, Object>) result.toJava();
+						} else System.out.println("Warning, incorrect JSON content in file " + filename);
+					} catch (JSONException ex) {
+						System.out.println("Warning: " + ex.getMessage());
+					} catch (FileNotFoundException ioex) {
+						System.out.println("Warning, localization file not found: " + filename);
+					} catch (IOException ioex) {
+//ignore
+					}
+				}
+				if (mw_localization != null) {
+					Object val = mw_localization.get(parameter);
+					if (val instanceof String)
+						return (String) val;
+				}
+				return parameter;//todo: implement logic to get parameters from MediaWiki namespace
             default:
                 break;
         }
 
         return magicWord.name();
     }
+	private static LinkedHashMap<String, Object> mw_localization = null;
 
     private static String getSubPageName(String parameter, String title) {
         String pagename = getPagenameHelper(parameter, title);

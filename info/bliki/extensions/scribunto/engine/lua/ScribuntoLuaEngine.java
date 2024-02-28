@@ -333,7 +333,7 @@ public final class ScribuntoLuaEngine implements MwInterface {
                     if (mw != null) {
                         final LuaTable arguments = args.checktable();
                         final String argument = arguments.get(1).checkjstring();
-						final String processed = MagicWords.evaluate(mw, argument, wp.getPagename(), wp.getRevision());
+						final String processed = MagicWords.evaluate(mw, argument, wp);
                         return processed == null ? NIL : toLuaString(processed);
                     } else {
                         System.out.println("unknown name:" + name);

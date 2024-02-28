@@ -201,6 +201,7 @@ final public class TestSuite {
 		testEvaluate(tp, "{{checkparam}}", wp, "No text in param");
 		testEvaluate(tp, "{{checknamedparam}}", wp, "no deprecated lang param usage");
 		testEvaluate(tp, "{{o{{#if: string | ne | two}}}}", wp, "template_one");
+		testEvaluate(tp, "{{int:friday}}", wp, "Friday");//this test requires file en.json stored in folder wiki
 
 		System.out.println("End of tests");
     }

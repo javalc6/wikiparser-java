@@ -166,7 +166,7 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 				}
 			}
 			if (sh.getSequence("}}")) {
-				String result = MagicWords.evaluate(mw, parameter, wp.getPagename(), wp.getRevision());
+				String result = MagicWords.evaluate(mw, parameter, wp);
 				if (result != null)
 					return result;
 				sh.setPointer(pointer);//retract scanner
