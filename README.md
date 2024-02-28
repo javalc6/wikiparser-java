@@ -123,7 +123,9 @@ Following languages are supported in the current implementation:
 - ``Russian``
 - ``Spanish``
 - ``Turkish``
-  
+
+The magicword ``int`` requires additional language files that shall be downloaded from https://gerrit.wikimedia.org/g/mediawiki/core/%2B/HEAD/languages/i18n and stored in folder ``wiki``.
+
 # Credits
 This software integrates 3pp software to perform specific activities.
 The following 3pp are used by this software:
