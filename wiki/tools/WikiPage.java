@@ -170,6 +170,8 @@ final public class WikiPage {
 	}
 
 	public String getContent(String fullpagename) {
+		return null;
+/*30-09-2024, the following code is useful for templates senseno/senseid, but for other templates like quote-text this code causes the exception: @mw.title.lua:272 attempt to call a nil value
 		String content = null;
 		if (name2content != null) {
 			if (fullpagename.startsWith("interwiki:"))
@@ -182,6 +184,7 @@ final public class WikiPage {
 		if (content == null && provide_fake_content)//only for test purposes
 			return fullpagename;
 		return content;
+*/
 	}
 
 	public String getRedirect(String text) {

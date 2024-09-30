@@ -485,9 +485,11 @@ public final class ScribuntoLuaEngine implements MwInterface {
             return new LuaClosure(prototype, globals);
         } else {
             try (InputStream is = findPackage(chunkName)) {
-                return new LuaClosure(
-                    loadAndCache(is, chunkName),
-                    globals);
+				if (is != null)
+	                return new LuaClosure(
+		                loadAndCache(is, chunkName),
+			            globals);
+				else return LuaValue.FALSE;//02-09-2024: return FALSE when package not found
             } catch (ScribuntoException | IOException e) {
                 throw new LuaError(e);
             }
@@ -550,15 +552,41 @@ public final class ScribuntoLuaEngine implements MwInterface {
             if (is != null) {
                 return is;
             } else {
-                throw e;
+				System.out.println("Warning: file not found: " + moduleName);//02-09-2024: print warning instead of throw e;
+                return null;//02-09-2024: return null instead of throw e;
             }
         }
     }
 
     protected String getRawWikiContent(String pageName) throws FileNotFoundException {
-        final String content = wp.getModule(pageName);
+        String content = wp.getModule(pageName);
 		if (content == null) {
 			throw new FileNotFoundException("could not find module \"" + pageName + "\"");
+		}
+		//02-09-2024: patch to handle variable arguments ... as in old versions of LUA
+		int idx = 0;
+		while ((idx = content.indexOf("arg", idx)) != -1) {
+			if (content.charAt(idx - 1) == ' ' && content.charAt(idx + 3) == '.' && content.charAt(idx + 4) == 'n') {// arg.n
+				char ch = content.charAt(idx + 5);
+				if (ch == ' ' || ch == '\n') {
+					content = content.substring(0, idx) + "#{...}" + content.substring(idx + 5);
+				}
+			} else idx += 5;
+		}
+		idx = 0;
+		while ((idx = content.indexOf("function ", idx)) != -1) {
+			char ch = content.charAt(idx - 1);
+			idx += 9; //length of "function "
+			if (ch == ' ' || ch == '\n') {
+				int vararg = content.indexOf("(...)", idx);
+				if (vararg != -1 && vararg < idx + 50 && content.substring(idx, vararg).matches("[a-zA-Z0-9: ]*")) {//evitiamo di considerare (...) lontani da 'function'				
+					content = content.substring(0, vararg + 5) + " local arg = table.pack(...) " + content.substring(vararg + 5);//length of "(...)"
+					idx = vararg;
+//					System.out.println("-------------------");
+//					System.out.println(content);
+//					System.out.println("-------------------");
+				}
+			}
 		}
 		return content;
     }
