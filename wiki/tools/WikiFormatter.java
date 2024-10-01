@@ -410,6 +410,7 @@ final public class WikiFormatter {
 
         deleteAll(result, "<p></p>");
         replaceAll(result, "<li> <li", "<li"); //in case of expanded lines like: # <li ...> blabla...
+		compressSpaces(result);//removes multiple spaces, e.g. ab   c   d --> ab c d 
 		return result.toString();
     }
 
@@ -431,7 +432,30 @@ final public class WikiFormatter {
         }
     }
 
+    public static void compressSpaces(StringBuilder input) {
+        if (input != null && input.length() != 0) {
+			int n = input.length();
+			int i = 0;
+			boolean isSpace = false;
+
+			for (int j = 0; j < n; j++) {
+				char ch = input.charAt(j);
+				if (Character.isWhitespace(ch)) {
+					if (!isSpace) {
+						input.setCharAt(i++, ch);
+						isSpace = true;
+					}
+				} else {
+					input.setCharAt(i++, ch);
+					isSpace = false;
+				}
+			}
+			input.setLength(i);
+        }
+    }
+
     private static void applyRules(StringBuilder sb, StringBuilder result, String linkBaseURL, String language) {
+		replaceAll(sb, "&#x3A;", ":");//required for correct processing of pattern: [[.. :.. ]]	
 		int ids = 0, ids2; int last = 0;
 		int len = sb.length();
         while ((ids < len) && ((ids = sb.indexOf("[", ids)) != -1)) {
