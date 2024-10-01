@@ -1,5 +1,5 @@
 /*
-License Information, 2023 Livio (javalc6)
+License Information, 2024 Livio (javalc6)
 
 Feel free to modify, re-use this software, please give appropriate
 credit by referencing this Github repository.
@@ -202,6 +202,9 @@ final public class TestSuite {
 		testEvaluate(tp, "{{checknamedparam}}", wp, "no deprecated lang param usage");
 		testEvaluate(tp, "{{o{{#if: string | ne | two}}}}", wp, "template_one");
 		testEvaluate(tp, "{{int:friday}}", wp, "Friday");//this test requires file en.json stored in folder wiki
+		testEvaluate(tp, "{{#language}}", wp, "English");
+		testEvaluate(tp, "{{#language:it}}", wp, "Italian");
+		testEvaluate(tp, "{{#language:it|fr}}", wp, "italien");
 
 		System.out.println("End of tests");
     }

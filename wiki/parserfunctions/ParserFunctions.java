@@ -1,5 +1,5 @@
 /*
-License Information, 2023 Livio (javalc6)
+License Information, 2024 Livio (javalc6)
 
 Feel free to modify, re-use this software, please give appropriate
 credit by referencing this Github repository.
@@ -51,6 +51,7 @@ public final class ParserFunctions {
 			parserFunctionMap.put("#ifexist", Ifexist.Instance);
 			parserFunctionMap.put("#ifexpr", Ifexpr.Instance);
 			parserFunctionMap.put("#invoke", Invoke.Instance);
+			parserFunctionMap.put("#language", Language.Instance);
 			parserFunctionMap.put("#switch", Switch.Instance);
 			parserFunctionMap.put("#tag", Tag.Instance);
 			parserFunctionMap.put("#time", Time.Instance);

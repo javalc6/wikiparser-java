@@ -1,5 +1,5 @@
 /*
-License Information, 2023 Livio (javalc6)
+License Information, 2024 Livio (javalc6)
 
 Feel free to modify, re-use this software, please give appropriate
 credit by referencing this Github repository.
@@ -175,8 +175,8 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 //check & process parser function call
 		ParserFunction pf = ParserFunctions.get(name);
 		if (pf != null)	{
+			ArrayList<String> parameters = new ArrayList<>();
 			if (idx != -1) {//first parameter present
-				ArrayList<String> parameters = new ArrayList<>();
 				String param = identifier.substring(idx + 1);
 				parameters.add(param == null ? "" : param.trim());
 
@@ -184,12 +184,10 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 					String paramx = sh.getStringParameter(null);
 					parameters.add(paramx == null ? "" : paramx.trim());
 				}
-				if (sh.getSequence("}}")) {
-					return pf.evaluate(wp, parameters, parent);
-				} else return null;
-			} else {//retract
-				sh.setPointer(pointer);//retract scanner
 			}
+			if (sh.getSequence("}}")) {
+				return pf.evaluate(wp, parameters, parent);
+			} else return null;
 		}
 		if (!identifier.contains("#")) {
 //check & process template call
