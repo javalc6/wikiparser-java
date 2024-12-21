@@ -264,43 +264,29 @@ Note:
 		return sb.toString();
 	}
 
-    public static void replaceAll(StringBuilder sb, String what) {
-        int idx = 0;
-        while (idx < sb.length()) {
-            idx = sb.indexOf(what, idx);
-            if (idx != -1)	{
-                sb.replace(idx, idx + what.length(), "");
-            } else break;
+    public static void replaceAll(StringBuilder sb, String what, String replacement) {//21-12-2024: optimized code
+        int idx;
+        while ((idx = sb.indexOf(what)) != -1) {
+            sb.replace(idx, idx + what.length(), replacement);
+            idx += replacement.length();
         }
     }
 
-    public static void replaceAll(StringBuilder sb, String what, String replacement) {
-        int idx = 0;
-        while (idx < sb.length()) {
-            idx = sb.indexOf(what, idx);
-            if (idx != -1)	{
-                sb.replace(idx, idx + what.length(), replacement);
-                idx += replacement.length();
-            } else break;
+    public static void deleteAll(StringBuilder sb, String what) {//21-12-2024: optimized code
+        int idx;
+        while ((idx = sb.indexOf(what)) != -1) {
+            sb.delete(idx, idx + what.length());
         }
     }
 
-    public static void deleteAll(StringBuilder sb, String what) {
-        int idx = 0;
-		int what_length = what.length();
-        while ((idx = sb.indexOf(what, idx)) != -1) {
-			sb.delete(idx, idx + what_length);
-        }
-    }
-
-    private static void deleteInsideAB(StringBuilder sb, String a, String b) {
-        int idx = 0;
+    private static void deleteInsideAB(StringBuilder sb, String a, String b) {//21-12-2024: optimized code
+        int idx;
 		int b_length = b.length();
-        while ((idx = sb.indexOf(a, idx)) != -1) {
-			int idxb = sb.indexOf(b, idx);
-			if (idxb != -1)
-				sb.delete(idx, idxb + b_length);
-			else break;
+        while ((idx = sb.indexOf(a)) != -1) {
+            int idxb = sb.indexOf(b, idx);
+            if (idxb != -1) {
+                sb.delete(idx, idxb + b_length);
+            } else break;
         }
     }
 
