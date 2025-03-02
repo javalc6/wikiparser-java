@@ -136,7 +136,7 @@ public final class Time extends ParserFunction {
 
     @Override
 	public String evaluate(WikiPage wp, ArrayList<String> parameters, Frame parent) {
-        if (parameters.size() > 0) {
+        if (!parameters.isEmpty()) {
 			TemplateParser tp = wp.getTemplateParser();
 			Date date;
 			Locale locale = wp.getLocale();

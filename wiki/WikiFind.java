@@ -112,7 +112,7 @@ public class WikiFind {
 					definition.append(st);
 					skiplines--;
 					if (skiplines == 0)	{
-						assert identifier.length() > 0;
+						assert !identifier.isEmpty();
 						name2page.put(identifier, definition.toString());
 						definition.setLength(0);
 					} else definition.append("\n");

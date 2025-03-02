@@ -147,22 +147,22 @@ final public class NameSpaces {
 		namespaces.put(2, new NameSpace(2, "User", "User", true, true, true, false, true, false, true, false, null, 2, 3, 3));
 		namespaces.put(3, new NameSpace(3, "User talk", "User talk", true, true, true, false, true, false, false, true, null, 2, 3, 2));
 		namespaces.put(4, new NameSpace(4, "Project", "Project", true, false, true, false, true, false, true, false, new java.util.ArrayList<>(Arrays.asList("WT", "Wiktionary")), 4, 5, 5));
-		namespaces.put(5, new NameSpace(5, "Project talk", "Project talk", true, false, true, false, true, false, false, true, new java.util.ArrayList<>(Arrays.asList("Wiktionary_talk")), 4, 5, 4));
-		namespaces.put(6, new NameSpace(6, "File", "File", false, false, true, false, true, false, true, false,  new java.util.ArrayList<>(Arrays.asList("Image")), 6, 7, 7));
-		namespaces.put(7, new NameSpace(7, "File talk", "File talk", true, false, true, false, true, false, false, true,  new java.util.ArrayList<>(Arrays.asList("Image_talk")), 6, 7, 6));
+		namespaces.put(5, new NameSpace(5, "Project talk", "Project talk", true, false, true, false, true, false, false, true, new java.util.ArrayList<>(Collections.singletonList("Wiktionary_talk")), 4, 5, 4));
+		namespaces.put(6, new NameSpace(6, "File", "File", false, false, true, false, true, false, true, false,  new java.util.ArrayList<>(Collections.singletonList("Image")), 6, 7, 7));
+		namespaces.put(7, new NameSpace(7, "File talk", "File talk", true, false, true, false, true, false, false, true,  new java.util.ArrayList<>(Collections.singletonList("Image_talk")), 6, 7, 6));
 		namespaces.put(8, new NameSpace(8, "MediaWiki", "MediaWiki", true, false, true, false, true, false, true, false, null, 8, 9, 9));
 		namespaces.put(9, new NameSpace(9, "MediaWiki talk", "MediaWiki talk", true, false, true, false, true, false, false, true, null, 8, 9, 8));
-		namespaces.put(10, new NameSpace(10, "Template", "Template", false, false, true, false, true, false, true, false,  new java.util.ArrayList<>(Arrays.asList("T")), 10, 11, 11));
+		namespaces.put(10, new NameSpace(10, "Template", "Template", false, false, true, false, true, false, true, false,  new java.util.ArrayList<>(Collections.singletonList("T")), 10, 11, 11));
 		namespaces.put(11, new NameSpace(11, "Template talk", "Template talk", true, false, true, false, true, false, false, true, null, 10, 11, 10));
 		namespaces.put(12, new NameSpace(12, "Help", "Help", true, false, true, false, true, false, true, false, null, 12, 13, 13));
 		namespaces.put(13, new NameSpace(13, "Help talk", "Help talk", true, false, true, false, true, false, false, true, null, 12, 13, 12));
-		namespaces.put(14, new NameSpace(14, "Category", "Category", false, false, true, false, true, false, true, false,  new java.util.ArrayList<>(Arrays.asList("CAT")), 14, 15, 15));
+		namespaces.put(14, new NameSpace(14, "Category", "Category", false, false, true, false, true, false, true, false,  new java.util.ArrayList<>(Collections.singletonList("CAT")), 14, 15, 15));
 		namespaces.put(15, new NameSpace(15, "Category talk", "Category talk", true, false, true, false, true, false, false, true, null, 14, 15, 14));
 
 		namespaces.put(100, new NameSpace(100, "Portal", "Portal", false, false, true, false, true, false, true, false, new java.util.ArrayList<>(Arrays.asList("AP", "Appendix")), 100, 101, 101));
-		namespaces.put(101, new NameSpace(101, "Portal talk", "Portal talk", false, false, true, false, true, false, true, false,  new java.util.ArrayList<>(Arrays.asList("Appendix_talk")), 100, 101, 100));
+		namespaces.put(101, new NameSpace(101, "Portal talk", "Portal talk", false, false, true, false, true, false, true, false,  new java.util.ArrayList<>(Collections.singletonList("Appendix_talk")), 100, 101, 100));
 
-		namespaces.put(828, new NameSpace(828, "Module", "Module", false, false, true, false, true, false, true, false,  new java.util.ArrayList<>(Arrays.asList("MOD")), 828, 829, 829));
+		namespaces.put(828, new NameSpace(828, "Module", "Module", false, false, true, false, true, false, true, false,  new java.util.ArrayList<>(Collections.singletonList("MOD")), 828, 829, 829));
 		namespaces.put(829, new NameSpace(829, "Module talk", "Module talk", false, false, true, false, true, false, false, true, null, 828, 829, 828));
 	}
 
@@ -199,7 +199,7 @@ final public class NameSpaces {
 	public static String getNameSpaceByNumber(Integer numnamespace) {
 		NameSpace ns = namespaces.get(numnamespace);
 		if (ns != null)
-			return namespaces.get(numnamespace).canonicalName;
+			return ns.canonicalName;
 		else return null;
 	}
 

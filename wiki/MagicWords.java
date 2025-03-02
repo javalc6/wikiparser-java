@@ -29,6 +29,7 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.LinkedHashMap;
 
@@ -332,7 +333,7 @@ public final class MagicWords {
 					String lang = wp.getLocale().getLanguage();
 					String filename = "wiki\\" + lang + ".json";//localization files can be downloaded from: https://gerrit.wikimedia.org/g/mediawiki/core/%2B/HEAD/languages/i18n
 					try {
-						LineNumberReader in = new LineNumberReader(new InputStreamReader(new FileInputStream(filename), "UTF-8"));
+						LineNumberReader in = new LineNumberReader(new InputStreamReader(new FileInputStream(filename), StandardCharsets.UTF_8));
 						String st;
 						StringBuilder sb = new StringBuilder();
 						while ((st = in.readLine()) != null) {
@@ -408,7 +409,7 @@ public final class MagicWords {
         int idx = title.indexOf(':');
         if (idx != -1) {
             String namespace = normaliseTitle(title.substring(0, idx), true);
-            if (namespace.length() > 0)
+            if (!namespace.isEmpty())
                 return namespace;
         }
         return "";

@@ -352,8 +352,7 @@ public class WikiSplitter {
 
 		public void characters(char[] ch, int start, int length) throws SAXException {
 			if (collectData)
-				for (int i = start; i < start + length; i++)
-					buf.append(ch[i]);
+				buf.append(ch, start, length);
 		}	 
 	}
 

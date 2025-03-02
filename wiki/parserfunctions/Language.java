@@ -43,7 +43,7 @@ public final class Language extends ParserFunction {
     @Override
 	public String evaluate(WikiPage wp, ArrayList<String> parameters, Frame parent) {
 		Locale loc;
-        if (parameters.size() > 0) {
+        if (!parameters.isEmpty()) {
 			TemplateParser tp = wp.getTemplateParser();
 			loc = getLocale(tp.parseParameter(parameters.get(0), wp, parent));
 			if (parameters.size() > 1) {

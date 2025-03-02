@@ -36,7 +36,7 @@ import static wiki.tools.Utilities.getLanguageNames;
 
 final public class WikiFormatter {
 	final static String category_label = "Category:";
-	final static List<String> not_allowed_media = Arrays.asList(new String[]{"file", "image", "audio"});
+	final static List<String> not_allowed_media = Arrays.asList("file", "image", "audio");
 	final static HashMap<String, String> code2language = getLanguageNames();
 
     public static String formatWikiText(StringBuilder lemma, StringBuilder wikitext, String linkBaseURL, String language) {

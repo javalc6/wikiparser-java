@@ -159,7 +159,7 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 			String parameter = null;
 			if (idx != -1) {//parameter present
 				String param = identifier.substring(idx + 1);
-				parameter = param == null ? "" : parseParameter(param, wp, parent).trim();
+				parameter = parseParameter(param, wp, parent).trim();
 
 				while (sh.getChar('|')) {//ignore any further parameter(s)
 					sh.getStringParameter(null);
@@ -178,7 +178,7 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 			ArrayList<String> parameters = new ArrayList<>();
 			if (idx != -1) {//first parameter present
 				String param = identifier.substring(idx + 1);
-				parameters.add(param == null ? "" : param.trim());
+				parameters.add(param.trim());
 
 				while (sh.getChar('|')) {//twin
 					String paramx = sh.getStringParameter(null);

@@ -264,11 +264,11 @@ Note:
 		return sb.toString();
 	}
 
-    public static void replaceAll(StringBuilder sb, String what, String replacement) {//21-12-2024: optimized code
-        int idx;
-        while ((idx = sb.indexOf(what)) != -1) {
-            sb.replace(idx, idx + what.length(), replacement);
-            idx += replacement.length();
+    private static void replaceAll(StringBuilder sb, String what, String replacement) {//21-12-2024: optimized code
+        int idx = 0;
+        while ((idx = sb.indexOf(what, idx)) != -1) {
+			sb.replace(idx, idx + what.length(), replacement);
+			idx += replacement.length();
         }
     }
 

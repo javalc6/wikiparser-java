@@ -36,7 +36,7 @@ public final class Titleparts extends ParserFunction {
 
     @Override
 	public String evaluate(WikiPage wp, ArrayList<String> parameters, Frame parent) {
-        if (parameters.size() > 0) {
+        if (!parameters.isEmpty()) {
 			TemplateParser tp = wp.getTemplateParser();
             String pagename = tp.parseParameter( parameters.get(0), wp, parent);
             int num = 0;

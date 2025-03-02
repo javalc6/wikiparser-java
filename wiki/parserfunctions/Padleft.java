@@ -37,7 +37,7 @@ public final class Padleft extends ParserFunction {
 
     @Override
 	public String evaluate(WikiPage wp, ArrayList<String> parameters, Frame parent) {
-        if (parameters.size() > 0) {
+        if (!parameters.isEmpty()) {
 			TemplateParser tp = wp.getTemplateParser();
 			String string1 = tp.parseParameter( parameters.get(0), wp, parent);
 			if (parameters.size() > 1) {

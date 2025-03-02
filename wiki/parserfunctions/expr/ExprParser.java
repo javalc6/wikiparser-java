@@ -232,10 +232,9 @@ final public class ExprParser {
 				// Word
 				// Find the rest of it
 				StringBuilder sb = new StringBuilder();
-				sb.append(ch);
-				while ((++p < expr.length()) && Character.isAlphabetic( ch = expr.charAt(p) )) {
-					sb.append(ch);
-				}
+                do {
+                    sb.append(ch);
+                } while ((++p < expr.length()) && Character.isAlphabetic(ch = expr.charAt(p)));
 
 				String word = sb.toString().toLowerCase();
 
@@ -406,14 +405,14 @@ final public class ExprParser {
 	private void doOperation( int op, ArrayList<Double> stack ) {
 		switch ( op ) {
 			case EXPR_NEGATIVE:
-				if ( stack.size() < 1 ) {
+				if (stack.isEmpty()) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
 				Double arg = array_pop( stack );
 				stack.add(-arg);
 				break;
 			case EXPR_POSITIVE:
-				if ( stack.size() < 1 ) {
+				if (stack.isEmpty()) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
 				break;
@@ -451,8 +450,8 @@ final public class ExprParser {
 				if ( stack.size() < 2 ) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
-				right = (double)array_pop( stack );
-				left = (double)array_pop( stack );
+				right = array_pop( stack );
+				left = array_pop( stack );
 				if (Math.abs(right) < EPSILON) {
 					throw new RuntimeException( "division_by_zero: " + NAMES.get(op) );
 				}
@@ -500,7 +499,7 @@ final public class ExprParser {
 				stack.add((Math.abs(left - right) < EPSILON) ? 1.0 : 0.0);
 				break;
 			case EXPR_NOT:
-				if ( stack.size() < 1 ) {
+				if (stack.isEmpty()) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
 				arg = array_pop( stack );
@@ -564,28 +563,28 @@ final public class ExprParser {
 				stack.add(left * Math.pow( 10, right));
 				break;
 			case EXPR_SINE:
-				if ( stack.size() < 1 ) {
+				if (stack.isEmpty()) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
 				arg = array_pop( stack );
 				stack.add(Math.sin( arg ));
 				break;
 			case EXPR_COSINE:
-				if ( stack.size() < 1 ) {
+				if (stack.isEmpty()) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
 				arg = array_pop( stack );
 				stack.add(Math.cos( arg ));
 				break;
 			case EXPR_TANGENS:
-				if ( stack.size() < 1 ) {
+				if (stack.isEmpty()) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
 				arg = array_pop( stack );
 				stack.add(Math.tan( arg ));
 				break;
 			case EXPR_ARCSINE:
-				if ( stack.size() < 1 ) {
+				if (stack.isEmpty()) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
 				arg = array_pop( stack );
@@ -595,7 +594,7 @@ final public class ExprParser {
 				stack.add(Math.asin( arg ));
 				break;
 			case EXPR_ARCCOS:
-				if ( stack.size() < 1 ) {
+				if (stack.isEmpty()) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
 				arg = array_pop( stack );
@@ -605,21 +604,21 @@ final public class ExprParser {
 				stack.add(Math.acos( arg ));
 				break;
 			case EXPR_ARCTAN:
-				if ( stack.size() < 1 ) {
+				if (stack.isEmpty()) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
 				arg = array_pop( stack );
 				stack.add(Math.atan( arg ));
 				break;
 			case EXPR_EXP:
-				if ( stack.size() < 1 ) {
+				if (stack.isEmpty()) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
 				arg = array_pop( stack );
 				stack.add(Math.exp( arg ));
 				break;
 			case EXPR_LN:
-				if ( stack.size() < 1 ) {
+				if (stack.isEmpty()) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
 				arg = array_pop( stack );
@@ -629,28 +628,28 @@ final public class ExprParser {
 				stack.add(Math.log( arg ));
 				break;
 			case EXPR_ABS:
-				if ( stack.size() < 1 ) {
+				if (stack.isEmpty()) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
 				arg = array_pop( stack );
 				stack.add(Math.abs( arg ));
 				break;
 			case EXPR_FLOOR:
-				if ( stack.size() < 1 ) {
+				if (stack.isEmpty()) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
 				arg = array_pop( stack );
 				stack.add(Math.floor( arg ));
 				break;
 			case EXPR_TRUNC:
-				if ( stack.size() < 1 ) {
+				if (stack.isEmpty()) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
 				arg = array_pop( stack );
 				stack.add((double) arg.intValue());
 				break;
 			case EXPR_CEIL:
-				if ( stack.size() < 1 ) {
+				if (stack.isEmpty()) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
 				arg = array_pop( stack );
@@ -665,7 +664,7 @@ final public class ExprParser {
 				stack.add(Math.pow( left, right ));
 				break;
 			case EXPR_SQRT:
-				if ( stack.size() < 1 ) {
+				if (stack.isEmpty()) {
 					throw new RuntimeException( "missing_operand: " + NAMES.get(op) );
 				}
 				arg = array_pop( stack );
@@ -698,13 +697,13 @@ final public class ExprParser {
 	}
 */
 	private static <T> T end(ArrayList<T> stack) {//php function end
-		if (stack.size() == 0)
+		if (stack.isEmpty())
 			return null;
 		return stack.get(stack.size() - 1);
 	}
 
 	private static <T> T array_pop(ArrayList<T> stack) {//php function array_pop
-		if (stack.size() == 0)
+		if (stack.isEmpty())
 			return null;
 		T last = stack.get(stack.size() - 1);
 		stack.remove(stack.size() - 1);
@@ -720,7 +719,7 @@ final public class ExprParser {
 	}
 
 	private static Double array_pop_as_Double(ArrayList<String> stack) {
-		if (stack.size() == 0)
+		if (stack.isEmpty())
 			return null;
 		String last = stack.get(stack.size() - 1);
 		stack.remove(stack.size() - 1);
