@@ -107,6 +107,7 @@ final public class TestSuite {
 		putItem(name2template, "checknamedparam", "{{#if:{{{lang|}}}|check deprecated lang param usage|no deprecated lang param usage}}");
 		putItem(name2template, "coord/dms2dec", "{{#expr:{{#switch:{{{1}}}|N|E=1|S|O|W=-1}}*({{{2|0}}}+({{{3|0}}}+{{{4|0}}}/60)/60) round {{{precdec|{{#if:{{{4|}}}|5|{{#if:{{{3|}}}|3|0}}}}}}}}}");
 
+		putItem(name2module, "testlua", "local export={}\nfunction export.osdate(frame)\nreturn os.date(\"!*t\", 906000490).month\nend\nreturn export");
 		putItem(name2module, "testmodule", "local export={}\nfunction export.echo(frame)\nreturn frame.args[\"text\"]\nend\nreturn export");
 		putItem(name2module, "domath", "local export={}\nlocal f=load\"return math.sqrt(3^2+4^2)\"\nfunction export.pitagora(frame)\nreturn f()\nend\nreturn export");
 
@@ -205,6 +206,7 @@ final public class TestSuite {
 		testEvaluate(tp, "{{#language}}", wp, "English");
 		testEvaluate(tp, "{{#language:it}}", wp, "Italian");
 		testEvaluate(tp, "{{#language:it|fr}}", wp, "italien");
+		testEvaluate(tp, "{{#invoke:testlua|osdate}}", wp, "9");
 
 		System.out.println("End of tests");
     }

@@ -1,1 +1,1 @@
-luaj-jse-3.0.2p.jar: StringLib.java patched to be compatible with wikipedia (without error invalid use of '%' in replacement string: after '%' must be '0'-'9' or '%'), see https://github.com/javalc6/luaj
+luaj-jse-3.0.2p.jar: StringLib.java patched to be compatible with wikipedia (without error invalid use of '%' in replacement string: after '%' must be '0'-'9' or '%') + patch for os.date with format string "!*t" in OsLib.java
