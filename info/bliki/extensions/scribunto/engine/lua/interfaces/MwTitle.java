@@ -42,6 +42,7 @@ public class MwTitle implements MwInterface {
         table.set("getFileInfo", getFileInfo());
         table.set("protectionLevels", protectionLevels());
         table.set("cascadingProtection", cascadingProtection());
+        table.set("redirectTarget", redirectTarget());//07-04-2025: added dummy method to handle issue @mw.title.lua attempt to call a nil value
         return table;
     }
 
@@ -109,6 +110,15 @@ public class MwTitle implements MwInterface {
                 LuaTable table = new LuaTable();
                 table.set("restrictions", new LuaTable());
                 return table;
+            }
+        };
+    }
+
+    private LuaValue redirectTarget() {//07-04-2025: added dummy method to handle issue @mw.title.lua attempt to call a nil value
+        return new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue arg) {
+                return LuaValue.NIL;
             }
         };
     }
