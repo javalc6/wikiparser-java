@@ -58,7 +58,7 @@ import static wiki.NameSpaces.getNameSpaceByNumber;
 
 public final class ScribuntoLuaEngine implements MwInterface {
     private static final int MAX_EXPENSIVE_CALLS = 10;
-    private static final boolean ENABLE_LUA_DEBUG_LIBRARY = false;
+    private static final boolean ENABLE_LUA_DEBUG_LIBRARY = true;//required to execute module table/getUnprotectedMetatable in English wiktionary
     private final Globals globals;
     private Frame currentFrame;
     private final Map<String,Frame> childFrames = new HashMap<>();

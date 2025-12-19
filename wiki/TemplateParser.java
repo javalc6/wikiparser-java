@@ -149,6 +149,9 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 		if (identifier.startsWith("safesubst:")) {//ignore safesubst:
 			identifier = identifier.substring("safesubst:".length());
 		}
+		if (identifier.startsWith("<noinclude/>")) {//ignore <noinclude/>
+			identifier = identifier.substring("<noinclude/>".length());
+		}
 		identifier = parseParameter(identifier, wp, parent).trim();
 		int pointer = sh.getPointer(); //save pointer to be ready to retract in case of invalid magic word or parser function
 //check & process magic word
