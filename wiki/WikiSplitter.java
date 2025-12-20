@@ -144,6 +144,7 @@ public class WikiSplitter {
 				is = new InputSource(reader);
 				is.setEncoding("UTF-8"); 
 			}
+			System.setProperty("jdk.xml.totalEntitySizeLimit", "0");//remove limit to avoid exception javax.xml.stream.XMLStreamException: ParseError with large files
 
 		    try {
 				SAXParserFactory.newInstance().newSAXParser().parse(is, 
