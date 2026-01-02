@@ -173,7 +173,7 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 				if (result != null)
 					return result;
 				sh.setPointer(pointer);//retract scanner
-			} else return null;
+			} else sh.setPointer(pointer);//02-01-2026, retract scanner
 		}
 //check & process parser function call
 		ParserFunction pf = ParserFunctions.get(name);

@@ -34,7 +34,7 @@ import info.bliki.extensions.scribunto.template.Frame;
 
 public final class Fullurle extends ParserFunction {
 
-    public final static ParserFunction Instance = new Fullurl();
+    public final static ParserFunction Instance = new Fullurle();
 
     @Override
 	public String evaluate(WikiPage wp, ArrayList<String> parameters, Frame parent) {
