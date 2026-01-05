@@ -9,7 +9,7 @@ The library has been developed to parse and render English Wiktionary, starting 
 
 In addition to English, several other languages are supported, as described below in section ``Localization``.
 
-As an example of a wiktionary definition parsed by ``TemplateParser`` and rendered by ``WikiFormatter``, please look at [time](wiki.html) definition.
+``WikiParserDemo`` is a Swing demo that parses input text using ``TemplateParser`` and renders it using ``WikiFormatter``, modules and templates are taken from the [Simple English Wiktionary](https://simple.wiktionary.org), see screenshot at the bottom of this README.
 
 # WikiSplitter
 The ``WikiSplitter`` tool generates files wiki.dat, templates.dat and modules.dat from a wikimedia dump.
@@ -135,3 +135,8 @@ The following 3pp are used by this software:
 - java scribunto engine: https://github.com/axkr/info.bliki.wikipedia_parser/tree/master/bliki-core/src/main/java/info/bliki/extensions/scribunto
 - java strtotime function: https://github.com/axkr/info.bliki.wikipedia_parser/tree/master/bliki-core/src/main/java/info/bliki/wiki/template/dates/
 - bzip2: https://commons.apache.org/proper/commons-compress
+
+# Screenshot
+This is an example of Wiktionary parsing and rendering using ``WikiParserDemo``:
+
+![Screenshot](images/wikiparserdemo.png)
