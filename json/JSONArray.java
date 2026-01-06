@@ -38,7 +38,10 @@ boolean equals(Object o)//check equal
 final public class JSONArray extends JSONValue {
 	final ArrayList<JSONValue> value = new ArrayList<>();
 
-	public JSONArray(ArrayList<Object> val) {//Java oriented constructor
+	public JSONArray() {
+	}
+
+	public JSONArray(ArrayList<? extends Object> val) {//Java oriented constructor
 		for (Object element: val) {
 			if (element == null)
 				value.add(null);
@@ -56,7 +59,9 @@ final public class JSONArray extends JSONValue {
 				value.add(new JSONArray((ArrayList<Object>) element));
 			} else if (element instanceof LinkedHashMap) {
 				value.add(new JSONObject((LinkedHashMap<String, Object>) element));
-			}
+			} else if (element instanceof JSONValue) {
+				value.add((JSONValue) element);
+			} else throw new RuntimeException("unexpected element of type " + element.getClass().getName());
 		}
 	}
 
@@ -66,6 +71,10 @@ final public class JSONArray extends JSONValue {
 
 	public JSONValue get(int idx) {
 		return value.get(idx);
+	}
+
+	public void add(JSONValue val) {
+		value.add(val);
 	}
 
 	public JSONArray(String str) throws JSONException {//constructor parsing a string representing a JSON array

@@ -26,6 +26,7 @@ package wiki;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import wiki.parserfunctions.ParserFunction;
 import wiki.parserfunctions.ParserFunctions;
@@ -43,6 +44,8 @@ import info.bliki.extensions.scribunto.template.Frame;
 The class TemplateParser implements light wiki template parser.
 */
 final public class TemplateParser {
+	final static String category_label = "Category:";
+	final static Pattern categoryPattern = Pattern.compile("\\[\\[" + category_label + "[^\\]]+\\]\\]");
 
 //main method parse string, returns evaluated string
 	public String parse(String string, WikiPage wp) {//external
@@ -256,9 +259,12 @@ reference: https://www.mediawiki.org/wiki/Help:Parser_functions_in_templates
 				}
 				Frame frame = new Frame(getNameSpaceByNumber(10) + ":" + identifier, parameterMap, parent, false);//frame of this template
 				StringBuilder sb = new StringBuilder();
-				WikiScanner sh = new WikiScanner(delete_comments(template_text));
+				WikiScanner sh = new WikiScanner(template_text);
 				template_body(sh, sb, wp, frame);
-				return sb.toString();
+				String result = sb.toString();
+				if (result.contains(category_label))//suppress category content
+					return categoryPattern.matcher(result).replaceAll("").trim();
+				return result;
 			}
 			identifier = redirect;
 		}

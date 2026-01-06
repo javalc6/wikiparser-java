@@ -70,7 +70,7 @@ Note: The constant FilterOtherLanguages can be used to select only the wanted la
 This software incorporates bzip2 decompressor from in https://commons.apache.org/proper/commons-compress, under Apache License version 2.0
 */
 public class WikiSplitter {
-	private final static boolean FilterOtherLanguages = true;//filter out sections with other languages using patterns 'thislanguage' and 'language_pattern'
+	private final static boolean FilterOtherLanguages = false;//filter out sections with other languages using patterns 'thislanguage' and 'language_pattern'
 
 	private final static Pattern keywords = Pattern.compile("[\\p{L}\\-][\\p{L}'/.\\-\\s]*");// Pattern to check that keyworks start with a Letter and contains letters, spaces, - and '
 	private final static String EOL = "\r\n";

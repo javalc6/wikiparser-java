@@ -49,21 +49,20 @@ public class Scanner {
 	}
 
 	protected Character getChar(String charset, boolean skip_ws, boolean mandatory) throws JSONException {//returns next char only if it is in charset, optionally skip leading whitespaces, in case 'mandatory' is specified JSONException() is raised in case of no match
-		Character ch = null;
 		int i = pointer;
 		if (skip_ws) {
-			while ((i < str.length()) && Character.isWhitespace(ch = str.charAt(i++)))
-				;
-		} else if (i < str.length())
-			ch = str.charAt(i++);
-		if (ch != null) {
+			while (i < str.length() && Character.isWhitespace(str.charAt(i)))
+				i++;
+		}
+		if (i < str.length()) {
+			char ch = str.charAt(i);
 			if (charset.indexOf(ch) != -1) {
-				pointer = i;
+				pointer = i + 1;
 				return ch;
 			}
 		}
 		if (mandatory)
-			throw new JSONException("parsing error, expecting one of the following characters: " + charset);
+			throw new JSONException("parsing error, expecting one of the following characters: " + charset);   
 		return null;
 	}
 
@@ -83,11 +82,10 @@ public class Scanner {
 	}
 
 	protected boolean eos() {//end of scanning ?
-		Character ch = null;
 		int i = pointer;
-		while ((i < str.length()) && Character.isWhitespace(ch = str.charAt(i++)))
-			;
-		return ch == null;
+		while (i < str.length() && Character.isWhitespace(str.charAt(i))) {
+			i++;
+		}
+		return i >= str.length();
 	}
-
 }

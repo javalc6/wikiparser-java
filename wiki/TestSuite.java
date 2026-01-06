@@ -43,9 +43,9 @@ import info.bliki.extensions.scribunto.engine.lua.ScribuntoLuaEngine;
 /* 
 TestSuite for TemplateParser to perform automatic tests of wiki parser only (html formatter is not included)
 
-compile: javac -encoding UTF-8 -cp .;lib\luaj-jse-3.0.2p.jar wiki\TestSuite.java
+compile: javac -encoding UTF-8 -cp .;lib\luaj-jse-3.0.2q.jar wiki\TestSuite.java
 
-run: java -cp .;lib\luaj-jse-3.0.2p.jar wiki.TestSuite [test number from 0 to 4] [template to test]
+run: java -cp .;lib\luaj-jse-3.0.2q.jar wiki.TestSuite [test number from 0 to 4] [template to test]
 
 meaning of test number:
 0: miscellaneous tests to check features
@@ -67,7 +67,7 @@ final public class TestSuite {
 			try {
 				test_number = Integer.parseInt(args[0]);
 			} catch (Exception ex) {
-				System.out.println("usage: java -cp .;lib\\luaj-jse-3.0.2p.jar wiki.TestSuite [test number from 0 to 4] [template to test]");
+				System.out.println("usage: java -cp .;lib\\luaj-jse-3.0.2q.jar wiki.TestSuite [test number from 0 to 4] [template to test]");
 				System.out.println("0: miscellaneous tests to check features");
 				System.out.println("1: debug test");
 				System.out.println("2: test template expansion, in this case specify also the template to test in the command line");

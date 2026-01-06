@@ -58,7 +58,9 @@ final public class JSONObject extends JSONValue {
 				value.put(key, new JSONArray((ArrayList<Object>) element));
 			} else if (element instanceof LinkedHashMap) {
 				value.put(key, new JSONObject((LinkedHashMap<String, Object>) element));
-			}
+			} else if (element instanceof JSONValue) {
+				value.put(key, (JSONValue) element);
+			} else throw new RuntimeException("unexpected element of type " + element.getClass().getName() + " with key " + key);
         });
 	}
 
@@ -70,7 +72,7 @@ final public class JSONObject extends JSONValue {
 		return value.get(key);
 	}
 
-	public JSONObject(String str) throws JSONException {//constructor parsing a string representing a JSON array
+	public JSONObject(String str) throws JSONException {//constructor parsing a string representing a JSON object
 		Scanner scanner = new Scanner(str);
 		_parse(scanner);
 		if (!scanner.eos()) throw new JSONException("parsing error due to unexpected trailing characters");
