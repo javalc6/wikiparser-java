@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="WikiParser" default="testsuite" basedir=".">
+
+    <property name="src.dir" value="src"/>
+    <property name="build.dir" value="classes"/>
+    <property name="lib.dir" value="lib"/>
+	<property name="script.dir" value="scripts"/>
+	<property name="res.dir" value="resources"/>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${build.dir}"/>
+        <javac srcdir="${src.dir}"
+               destdir="${build.dir}"
+               includeantruntime="false"
+               debug="true"
+			   encoding="UTF-8">
+			<classpath>
+                <pathelement location="${lib.dir}/luaj-jse-3.0.2q.jar"/>
+            </classpath>			   
+        </javac>
+		<copy todir="${build.dir}">
+			<fileset dir="${res.dir}">
+                <include name="**/*.json"/>
+                <include name="**/*.properties"/>
+            </fileset>
+        </copy>		
+    </target>
+
+    <target name="testsuite" depends="compile">
+        <java classname="wiki.TestSuite" fork="true">
+			<classpath>
+                <pathelement path="${build.dir}"/>
+                <pathelement location="${lib.dir}/luaj-jse-3.0.2q.jar"/>
+				<pathelement path="${script.dir}"/>
+            </classpath>
+        </java>
+    </target>
+	
+	<target name="wikisplitter" depends="compile">
+        <fail message="Please provide a filename using -Dfilename=yourfile.xml" unless="filename"/>
+        <java classname="wiki.WikiSplitter" fork="true">
+            <classpath>
+                <pathelement location="${build.dir}"/>
+                <pathelement location="${lib.dir}/luaj-jse-3.0.2q.jar"/>
+                <pathelement path="${script.dir}"/>
+            </classpath>
+            <arg value="${filename}"/>
+        </java>
+    </target>	
+
+	<target name="wikifind" depends="compile">
+        <fail message="Please provide word using -Dword=yourword" unless="word"/>
+        <java classname="demo.WikiFind" fork="true">
+            <classpath>
+                <pathelement location="${build.dir}"/>
+                <pathelement location="${lib.dir}/luaj-jse-3.0.2q.jar"/>
+                <pathelement path="${script.dir}"/>
+            </classpath>
+            <arg value="${word}"/>
+        </java>
+    </target>	
+
+    <target name="wikiparserdemo" depends="compile">
+        <java classname="demo.WikiParserDemo" fork="true">
+			<classpath>
+                <pathelement path="${build.dir}"/>
+                <pathelement location="${lib.dir}/luaj-jse-3.0.2q.jar"/>
+				<pathelement path="${script.dir}"/>
+            </classpath>
+        </java>
+    </target>
+	
+
+</project>
