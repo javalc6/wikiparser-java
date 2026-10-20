@@ -24,6 +24,7 @@ DO NOT USE THIS SOFTWARE IF YOU DON'T AGREE WITH STATED CONDITIONS.
 package wiki;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -40,7 +41,10 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import bzip2.BZip2CompressorInputStream;
 import java.nio.file.Paths;
-import java.nio.file.Files; 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.AtomicMoveNotSupportedException;
 
 import wiki.NameSpaces.NameSpace;
 import static wiki.NameSpaces.getNameSpace;
@@ -61,9 +65,7 @@ The following files are generated for information purposes:
 - index.txt: list of words extracted in wiki.dat
 - excluded.txt: list of words excluded
 
-compile: javac -encoding UTF-8 wiki\WikiSplitter.java
-
-usage:  java -Djdk.xml.totalEntitySizeLimit=2147480000 wiki.WikiSplitter <filename>
+usage:  java -cp classes -Djdk.xml.totalEntitySizeLimit=2147480000 wiki.WikiSplitter <filename>
 
 Note: The constant FilterOtherLanguages can be used to select only the wanted language before generating wiki.dat, but it requires the definition of two properties 'thislanguage' and 'language_pattern' with ad-hoc patterns
 
@@ -87,7 +89,13 @@ public class WikiSplitter {
 			String fn = args[0];
 			long t0 = System.nanoTime();
 
-			new WikiSplitter().doSplit(fn);
+			try {
+				new WikiSplitter().doSplit(fn);
+			} catch (Exception e) {
+				System.err.println("Error: " + e);
+				e.printStackTrace();
+				System.exit(1);
+			}
 
 			System.out.println();
 			System.out.println((System.nanoTime() - t0)/1e9+" s");
@@ -96,102 +104,108 @@ public class WikiSplitter {
 		}
 	}
 
-    public void doSplit(String fn) {
-		if (fn == null)
-			fn = "enwiktionary-latest-pages-articles.xml";
-		try {
-			TreeMap<String, String> dict = new TreeMap<>();
-			String[] language = new String[1];
-			parseXMLFile(fn, language, dict);
-
-// write templates file
-			PrintWriter template_file = new PrintWriter("templates.dat", "UTF-8");
-			name2template.forEach((name, template) -> {
-				String[] lines = template.split(EOL);
-				template_file.println(name + "|" + lines.length);
-				for (String line: lines)
-					template_file.println(line);
-			});
-			template_file.close();
-
-// write modules file
-			PrintWriter module_file = new PrintWriter("modules.dat", "UTF-8");
-			name2module.forEach((name, module) -> {
-				String[] lines = module.split(EOL);
-				module_file.println(name + "|" + lines.length);
-				for (String line: lines)
-					module_file.println(line);
-			});
-			module_file.close();
-			
-			write_dat(dict, fn, language[0]);
-		} catch(Exception e) {
-			e.printStackTrace();
-        }
-    }
-
-	private void parseXMLFile(String fn, String[] language, TreeMap<String, String> dict) throws IOException, ParserConfigurationException {
-			ArrayList<String> excluded = new ArrayList<>();
-
-			InputSource is;
-			if (fn.endsWith("bz2"))	{
-				InputStream fin = Files.newInputStream(Paths.get(fn));
-				BZip2CompressorInputStream bzIn = new BZip2CompressorInputStream(new BufferedInputStream(fin));
-				is = new InputSource(bzIn);
-				is.setEncoding("UTF-8"); 
-			} else {
-				Reader reader = new InputStreamReader(new FileInputStream(fn), StandardCharsets.UTF_8);
-				is = new InputSource(reader);
-				is.setEncoding("UTF-8"); 
-			}
-			System.setProperty("jdk.xml.totalEntitySizeLimit", "0");//remove limit to avoid exception javax.xml.stream.XMLStreamException: ParseError with large files
-
-		    try {
-				SAXParserFactory.newInstance().newSAXParser().parse(is, 
-					new WikiHandler(dict, excluded, language));
-			} catch (SAXException e) {
-				e.printStackTrace();
-			}
-
-// write excluded words file
-			PrintWriter excludedf = new PrintWriter("excluded.txt", "UTF-8");
-			for (String e: excluded) {
-				excludedf.println(e);
-			}
-			excludedf.close();
-
-			System.out.println();
-			System.out.println("Number of words found: "+dict.size());
-			System.out.println("Number of excluded words: "+excluded.size());
+	private interface WriterBody {
+		void write(BufferedWriter w) throws IOException;
 	}
 
-	private void write_dat(TreeMap<String, String> dict, String fn, String language) throws IOException {
+	private void writeFile(String name, WriterBody body) throws IOException {
+		try (BufferedWriter w = Files.newBufferedWriter(Paths.get(name), StandardCharsets.UTF_8)) {
+			body.write(w);
+		}
+	}
+
+	private static void writeDat(BufferedWriter w, TreeMap<String, String> map) throws IOException {//format: name|number_of_lines, followed by the lines
+		for (Map.Entry<String, String> entry : map.entrySet()) {
+			String[] lines = entry.getValue().split(EOL);
+			w.write(entry.getKey() + "|" + lines.length);
+			w.newLine();
+			for (String line : lines) {
+				w.write(line);
+				w.newLine();
+			}
+		}
+	}
+
+	public void doSplit(String fn) throws IOException {
+		if (fn == null)
+			fn = "enwiktionary-latest-pages-articles.xml";
+		TreeMap<String, String> dict = new TreeMap<>();
+		String[] language = new String[1];
+		ArrayList<String> excluded = new ArrayList<>();
+
+		parseXMLFile(fn, language, dict, excluded);
+
+		System.out.println();
+		System.out.println("Number of words found: " + dict.size());
+		System.out.println("Number of excluded words: " + excluded.size());
+
+// write templates file
+		writeFile("templates.dat", w -> writeDat(w, name2template));
+// write modules file
+		writeFile("modules.dat", w -> writeDat(w, name2module));
+// write excluded entries file
+		writeFile("excluded.txt", w -> {
+			for (String e : excluded) {
+				w.write(e);
+				w.newLine();
+			}
+		});
+
 // write definition file
-			PrintWriter output = new PrintWriter("wiki.dat", "UTF-8");
-			output.println(language + "|" + fn); //header
+		String filename = fn;
+		writeFile("wiki.dat", w -> {
+			w.write(language[0] + "|" + filename); //header
+			w.newLine();
 			StringBuilder definition = new StringBuilder();
 			for (Map.Entry<String, String> entry : dict.entrySet()) {
 				String word = entry.getKey();
 				int n_def_lines = 0;
-                String[] lines = entry.getValue().split(EOL);
-                for (String line : lines) {
+				String[] lines = entry.getValue().split(EOL);
+				for (String line : lines) {
 					definition.append(line).append(EOL);
-                    n_def_lines++;
-                }
+					n_def_lines++;
+				}
 				if (n_def_lines != 0) {
-					output.println(word+"|"+n_def_lines);
-					output.print(definition);
-					definition.setLength(0);n_def_lines = 0;
-				} else System.out.println(word+" has been dropped");
+					w.write(word + "|" + n_def_lines);
+					w.newLine();
+					w.append(definition);
+					definition.setLength(0);
+				} else System.out.println(word + " has been dropped");
 			}
-			output.close();
+		});
 
 // write index file
-			output = new PrintWriter("index.txt", "UTF-8");
-			for (String word: dict.keySet()) {
-				output.println(word);
+		writeFile("index.txt", w -> {
+			for (String word : dict.keySet()) {
+				w.write(word);
+				w.newLine();
 			}
-			output.close();
+		});
+	}
+
+	private void parseXMLFile(String fn, String[] language, TreeMap<String, String> dict, ArrayList<String> excluded) throws IOException {
+		System.setProperty("jdk.xml.totalEntitySizeLimit", "0");//remove limit to avoid exception javax.xml.stream.XMLStreamException: ParseError with large files
+		Locale previousDefault = Locale.getDefault();//the handler calls Locale.setDefault(): restore it when done
+		try (InputStream raw = new BufferedInputStream(Files.newInputStream(Paths.get(fn)))) {
+			WikiHandler handler = new WikiHandler(dict, excluded, language);
+			if (fn.endsWith("bz2")) {
+				try (InputStream bzIn = new BZip2CompressorInputStream(raw)) {
+					InputSource is = new InputSource(bzIn);
+					is.setEncoding("UTF-8");
+					SAXParserFactory.newInstance().newSAXParser().parse(is, handler);
+				}
+			} else {
+				try (Reader reader = new InputStreamReader(raw, StandardCharsets.UTF_8)) {
+					InputSource is = new InputSource(reader);
+					is.setEncoding("UTF-8");
+					SAXParserFactory.newInstance().newSAXParser().parse(is, handler);
+				}
+			}
+		} catch (SAXException | ParserConfigurationException e) {
+			throw new IOException("error parsing " + fn + " (corrupted or truncated dump?): " + e.getMessage(), e);
+		} finally {
+			Locale.setDefault(previousDefault);
+		}
 	}
 
 	class WikiHandler extends DefaultHandler {
@@ -230,7 +244,7 @@ public class WikiSplitter {
 						language[0] = attributes.getValue(i); 
 						Locale locale = new Locale(language[0]); 
 						String str = locale.getDisplayLanguage(locale);
-						String language_name = str.substring(0, 1).toUpperCase(locale) + str.substring(1);//capitalize language_name
+						String language_name = str.isEmpty() ? language[0] : str.substring(0, 1).toUpperCase(locale) + str.substring(1);//capitalize language_name
 						Locale.setDefault(locale);
 
 						resourceBundle = getResourceBundle(locale);
@@ -400,7 +414,7 @@ public class WikiSplitter {
 			return -1;//no match found
 		}
 
-		private final int[] opening_pos = new int[256];
+		private int[] opening_pos = new int[256];
 		private int findMatchingBraces(int start, int next_nl) {//returns matching braces with condition that next_nl < match[1] is true, otherwise it returns null
 			while (start != -1) {
 				int lvl = 0; int close_lvl = -1;//undef
@@ -418,7 +432,9 @@ public class WikiSplitter {
 						break;
 
 					if (buffer.charAt(i) == '{' && buffer.charAt(i + 1) == '{') {//{{
-						opening_pos[lvl] = i;
+						if (lvl >= opening_pos.length)
+							opening_pos = Arrays.copyOf(opening_pos, opening_pos.length * 2);
+							opening_pos[lvl] = i;
 						lvl++; i++;
 					} else if ((lvl > 0) && buffer.charAt(i) == '}' && buffer.charAt(i + 1) == '}') {//}}
 						lvl--; i++;
@@ -439,7 +455,7 @@ public class WikiSplitter {
 			return -1;//no match found
 		}
 
-		public String getSegment(boolean debug) {//nota: nella stringa ritornata da getSegment() ci possono essere contenere dei caratteri '\n' (senza alcun \r)
+		public String getSegment(boolean debug) {//Note: the string returned by getSegment() may contain '\n' characters (with no '\r' characters)
 			if (pointer == -1)
 				return null;
 			if (pointer >= buffer.length()) {//pointer not valid any more
