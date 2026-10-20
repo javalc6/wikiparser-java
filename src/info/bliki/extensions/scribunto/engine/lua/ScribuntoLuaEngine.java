@@ -465,7 +465,7 @@ public final class ScribuntoLuaEngine implements MwInterface {
         return new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue arg) {
-                return TRUE;
+                return arg.isstring() ? TRUE: FALSE;//19-10-2026: correction to support proper handling of frames
             }
         };
     }
